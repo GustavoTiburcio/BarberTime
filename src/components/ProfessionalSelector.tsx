@@ -1,41 +1,10 @@
 import { User, Star } from 'lucide-react';
-import { Professional } from '../types';
+import { professionals } from '../mocks';
 
 interface ProfessionalSelectorProps {
   selectedProfessional: string;
   onProfessionalSelect: (professionalId: string) => void;
 }
-
-const professionals: Professional[] = [
-  {
-    id: '1',
-    name: 'Carlos Silva',
-    avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400',
-    specialties: ['Corte Tradicional', 'Barba Clássica'],
-    rating: 4.9
-  },
-  {
-    id: '2',
-    name: 'Roberto Santos',
-    avatar: 'https://images.pexels.com/photos/1040880/pexels-photo-1040880.jpeg?auto=compress&cs=tinysrgb&w=400',
-    specialties: ['Corte Moderno', 'Degradê'],
-    rating: 4.8
-  },
-  {
-    id: '3',
-    name: 'Diego Ferreira',
-    avatar: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400',
-    specialties: ['Barba Completa', 'Tratamentos'],
-    rating: 4.7
-  },
-  {
-    id: '4',
-    name: 'André Costa',
-    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
-    specialties: ['Combo Completo', 'Corte Infantil'],
-    rating: 4.9
-  }
-];
 
 export function ProfessionalSelector({ selectedProfessional, onProfessionalSelect }: ProfessionalSelectorProps) {
   return (

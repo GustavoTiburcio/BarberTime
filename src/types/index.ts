@@ -1,5 +1,5 @@
 export interface Service {
-  id: string;
+  id?: string;
   name: string;
   duration: number; // em minutos
   price: number;
@@ -7,7 +7,7 @@ export interface Service {
 }
 
 export interface Professional {
-  id: string;
+  id?: string;
   name: string;
   avatar: string;
   specialties: string[];

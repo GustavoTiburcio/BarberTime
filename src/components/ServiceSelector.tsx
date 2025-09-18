@@ -1,55 +1,10 @@
 import { Scissors, Clock } from 'lucide-react';
-import { Service } from '../types';
+import { services } from '../mocks';
 
 interface ServiceSelectorProps {
   selectedService: string;
   onServiceSelect: (serviceId: string) => void;
 }
-
-const services: Service[] = [
-  {
-    id: '1',
-    name: 'Corte Tradicional',
-    duration: 30,
-    price: 25,
-    description: 'Corte clássico com acabamento a navalha'
-  },
-  {
-    id: '2',
-    name: 'Corte + Barba',
-    duration: 45,
-    price: 40,
-    description: 'Corte completo com barba aparada e acabamento'
-  },
-  {
-    id: '3',
-    name: 'Barba Completa',
-    duration: 30,
-    price: 20,
-    description: 'Aparar e modelar a barba com produtos premium'
-  },
-  {
-    id: '4',
-    name: 'Corte Moderno',
-    duration: 40,
-    price: 35,
-    description: 'Cortes modernos com técnicas atualizadas'
-  },
-  {
-    id: '5',
-    name: 'Tratamento Capilar',
-    duration: 60,
-    price: 50,
-    description: 'Hidratação e tratamento completo dos cabelos'
-  },
-  {
-    id: '6',
-    name: 'Combo Completo',
-    duration: 90,
-    price: 70,
-    description: 'Corte, barba, sobrancelha e tratamento'
-  }
-];
 
 export function ServiceSelector({ selectedService, onServiceSelect }: ServiceSelectorProps) {
   return (
