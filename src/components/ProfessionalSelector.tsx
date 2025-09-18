@@ -39,7 +39,7 @@ const professionals: Professional[] = [
 
 export function ProfessionalSelector({ selectedProfessional, onProfessionalSelect }: ProfessionalSelectorProps) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+    <div id='professional-selector' className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <User className="w-5 h-5 text-amber-500" />
         Escolha o Profissional

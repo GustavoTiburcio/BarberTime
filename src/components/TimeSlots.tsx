@@ -1,5 +1,3 @@
-import { useBookings } from '../hooks/useBookings';
-
 interface TimeSlotsProps {
   selectedDate: string;
   selectedTime: string;
@@ -8,7 +6,6 @@ interface TimeSlotsProps {
 }
 
 export function TimeSlots({ selectedDate, selectedTime, selectedProfessional, onTimeSelect }: TimeSlotsProps) {
-  const { isTimeSlotAvailable } = useBookings();
 
   const timeSlots = [
     '08:00', '09:00', '10:00',
@@ -33,7 +30,8 @@ export function TimeSlots({ selectedDate, selectedTime, selectedProfessional, on
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Horários Disponíveis</h3>
       <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
         {timeSlots.map(time => {
-          const available = isTimeSlotAvailable(selectedDate, time, selectedProfessional);
+          const available = true;
+          // const available = isTimeSlotAvailable(selectedDate, time, selectedProfessional);
           const isSelected = selectedTime === time;
 
           return (

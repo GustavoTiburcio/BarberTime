@@ -1,4 +1,4 @@
-import { Scissors, Clock, DollarSign } from 'lucide-react';
+import { Scissors, Clock } from 'lucide-react';
 import { Service } from '../types';
 
 interface ServiceSelectorProps {
@@ -53,7 +53,7 @@ const services: Service[] = [
 
 export function ServiceSelector({ selectedService, onServiceSelect }: ServiceSelectorProps) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+    <div id='service-selector' className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <Scissors className="w-5 h-5 text-amber-500" />
         Selecione o Serviço
@@ -79,7 +79,6 @@ export function ServiceSelector({ selectedService, onServiceSelect }: ServiceSel
                 <span>{service.duration}min</span>
               </div>
               <div className="flex items-center gap-1 font-semibold text-amber-600">
-                <DollarSign className="w-4 h-4" />
                 <span>R$ {service.price}</span>
               </div>
             </div>

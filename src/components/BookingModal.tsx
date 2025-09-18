@@ -1,10 +1,12 @@
 import { X, Calendar, Clock, Scissors, User, Phone, MapPin } from 'lucide-react';
 import { BookingFormData } from '../types';
+import { Button } from './Button';
 
 interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  isLoading: boolean;
   formData: BookingFormData;
   serviceName: string;
   servicePrice: number;
@@ -12,26 +14,27 @@ interface BookingModalProps {
   professionalName: string;
 }
 
-export function BookingModal({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  formData, 
-  serviceName, 
-  servicePrice, 
-  serviceDuration, 
-  professionalName 
+export function BookingModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  isLoading,
+  formData,
+  serviceName,
+  servicePrice,
+  serviceDuration,
+  professionalName
 }: BookingModalProps) {
   if (!isOpen) return null;
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr + 'T00:00:00');
-    return date.toLocaleDateString('pt-BR', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
@@ -126,19 +129,13 @@ export function BookingModal({
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 p-6 border-t border-gray-200">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-          >
+        <div className="flex justify-between px-6 p-3">
+          <Button color='white' onClick={onClose} className='w-[45%]'>
             Cancelar
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium shadow-lg hover:shadow-xl"
-          >
+          </Button>
+          <Button loading={isLoading} onClick={onConfirm} className='w-[50%]'>
             Confirmar
-          </button>
+          </Button>
         </div>
       </div>
     </div>
