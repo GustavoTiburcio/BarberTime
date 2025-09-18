@@ -10,7 +10,6 @@ import { ProfessionalSelector } from '../components/ProfessionalSelector';
 import { BookingForm } from '../components/BookingForm';
 import { BookingModal } from '../components/BookingModal';
 import Footer from '../components/Footer';
-import Header from '../components/Header';
 
 import { professionals, services } from '../mocks';
 import { formatDate, scrollToSection } from '../utils';
@@ -70,8 +69,6 @@ function Booking() {
 
   return (
     <div className='min-h-screen bg-gray-50'>
-      <Header />
-
       <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {(date || time || serviceId || professionalId) && (
           <div className='bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8 hidden lg:block'>

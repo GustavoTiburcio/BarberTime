@@ -1,5 +1,5 @@
+import Router from './components/Router';
 import { AuthProvider } from './context';
-import Booking from './pages/Booking';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Create a client
@@ -9,7 +9,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Booking />
+        <Router />
       </AuthProvider>
     </QueryClientProvider>
   );
