@@ -1,5 +1,5 @@
-import { AuthProvider } from './Context';
-import Booking from './Pages/Booking';
+import { AuthProvider } from './context';
+import Booking from './pages/Booking';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Create a client

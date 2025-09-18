@@ -8,13 +8,12 @@ interface UseBookingProps {
 }
 
 export function useBooking({ onSuccess, onError }: UseBookingProps = {}) {
-  const { setToast } = useAuth();
+  const { showToast } = useAuth();
 
   const mutation = useMutation({
     mutationFn: async (data: BookingFormData) => console.log(data),
     onSuccess: () => {
-      setToast({
-        show: true,
+      showToast({
         message: 'Agendamento confirmado com sucesso! Você receberá uma confirmação em breve.',
         type: 'success'
       });
@@ -24,8 +23,7 @@ export function useBooking({ onSuccess, onError }: UseBookingProps = {}) {
     onError: (error) => {
       console.error('Erro ao confirmar agendamento:', error);
 
-      setToast({
-        show: true,
+      showToast({
         message: 'Erro ao confirmar agendamento. Tente novamente.',
         type: 'error'
       });

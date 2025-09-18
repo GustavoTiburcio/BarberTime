@@ -2,7 +2,7 @@ import { createContext, useState } from 'react';
 import { Toast } from '../components/Toast';
 
 interface IAuthContextValue {
- setToast: React.Dispatch<React.SetStateAction<{ show: boolean; message: string; type: 'success' | 'error' | 'info' }>>
+  showToast: ({ message, type }: { message: string, type: 'success' | 'error' | 'info' }) => void;
 }
 
 export const AuthContext = createContext({} as IAuthContextValue);
@@ -10,10 +10,14 @@ export const AuthContext = createContext({} as IAuthContextValue);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
+  function showToast({ message, type }: { message: string, type: 'success' | 'error' | 'info' }) {
+    setToast({ show: true, message, type });
+  }
+
   return (
     <AuthContext.Provider
       value={{
-        setToast
+        showToast
       }}
     >
       <Toast
