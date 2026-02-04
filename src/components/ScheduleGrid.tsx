@@ -71,9 +71,9 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
       {/* Header com dias */}
       <div className='overflow-x-auto'>
         <div className='inline-block min-w-full'>
-          <div className='grid grid-cols-[80px_repeat(7,1fr)] gap-0 border-b border-gray-200'>
+          <div className='grid gap-0 border-b border-gray-200' style={{ gridTemplateColumns: 'minmax(45px, 45px) repeat(7, minmax(60px, 1fr))' }}>
             {/* Coluna de horários (vazia) */}
-            <div className='bg-gray-50 p-4 border-r border-gray-200'></div>
+            <div className='bg-gray-50 p-2 sm:p-4 border-r border-gray-200'></div>
 
             {/* Dias da semana */}
             {weekDates.map((date, index) => {
@@ -86,15 +86,15 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
               return (
                 <div
                   key={date.toISOString()}
-                  className={`p-4 text-center border-r border-gray-200 ${
+                  className={`p-2 sm:p-4 text-center border-r border-gray-200 ${
                     isToday ? 'bg-blue-50' : 'bg-gray-50'
                   }`}
                 >
-                  <div className={`text-sm font-medium ${isToday ? 'text-blue-700' : 'text-gray-700'}`}>
+                  <div className={`text-xs sm:text-sm font-medium ${isToday ? 'text-blue-700' : 'text-gray-700'}`}>
                     {dayNames[index]}
                   </div>
                   <div
-                    className={`text-xl font-bold ${isToday ? 'text-blue-900' : 'text-gray-900'}`}
+                    className={`text-lg sm:text-xl font-bold ${isToday ? 'text-blue-900' : 'text-gray-900'}`}
                   >
                     {date.getDate()}
                   </div>
@@ -111,15 +111,15 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
             <div
               className='grid gap-0'
               style={{
-                gridTemplateColumns: '80px repeat(7, 1fr)',
-                gridAutoRows: '48px',
+                gridTemplateColumns: 'minmax(45px, 45px) repeat(7, minmax(60px, 1fr))',
+                gridAutoRows: '40px',
               }}
             >
               {/* Coluna de horários */}
               {timeSlots.map((time, index) => (
                 <div
                   key={`hour-${time}`}
-                  className='bg-gray-50 p-2 text-sm font-medium text-gray-700 border-r border-b border-gray-200 flex items-center justify-center'
+                  className='bg-gray-50 p-1 sm:p-2 text-xs sm:text-sm font-medium text-gray-700 border-r border-b border-gray-200 flex items-center justify-center'
                   style={{ gridColumn: 1, gridRow: index + 1 }}
                 >
                   {time}
@@ -148,7 +148,7 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
                     return (
                       <div
                         key={cellKey}
-                        className={`p-1 border-2 z-10 rounded-lg flex flex-col justify-center items-center cursor-pointer hover:shadow-lg transition-shadow ${statusColor.bg} ${statusColor.border} ${statusColor.text} overflow-hidden`}
+                        className={`p-0.5 sm:p-1 border-2 z-10 rounded-lg flex flex-col justify-center items-center cursor-pointer hover:shadow-lg transition-shadow ${statusColor.bg} ${statusColor.border} ${statusColor.text} overflow-hidden`}
                         style={{
                           gridColumn: dayIndex + 2,
                           gridRow: `${timeIndex + 1} / span 1`,
@@ -164,25 +164,17 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
                         {isSmallSlot ? (
                           // Versão compacta para slots pequenos
                           <div className='text-xs font-semibold text-center truncate w-full'>
-                            {booking.clientName.split(' ')[0]}  - {booking.clientPhone}
+                            {booking.clientName.split(' ')[0]}
                           </div>
                         ) : (
                           // Versão completa para slots maiores
                           <>
                             <div className='text-xs font-semibold text-center truncate w-full'>
-                              {booking.clientName.split(' ')[0]} - {booking.clientPhone}
+                              {booking.clientName.split(' ')[0]}
                             </div>
-                            <div className='text-xs font-semibold text-center truncate w-full'>
+                            <div className='text-xs font-semibold text-center truncate w-full hidden sm:block'>
                               {services.find((s) => s.id === booking.serviceId)?.name || 'Serviço'}
                             </div>
-                            {/* {bookingHeight > 90 && (
-                              <div className='text-xs font-medium'>
-                                {booking.status === 'confirmed' && '✓'}
-                                {booking.status === 'pending' && '⏳'}
-                                {booking.status === 'completed' && '✓✓'}
-                                {booking.status === 'cancelled' && '✗'}
-                              </div>
-                            )} */}
                           </>
                         )}
                       </div>
