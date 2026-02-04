@@ -4,7 +4,7 @@ import {
   Outlet,
   Routes,
 } from 'react-router-dom';
-import Booking from '../pages/Booking';
+import Booking from '../pages/Booking.tsx';
 import Header from './Header';
 import Dashboard from '../pages/Dashboard';
 import Professionals from '../pages/Professionals';
