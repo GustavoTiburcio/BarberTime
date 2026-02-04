@@ -52,11 +52,12 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
     return bookings.filter((booking) => booking.date === dateStr);
   };
 
-  // Calcula quantos slots o agendamento ocupa baseado na duração
-  const getBookingSpanRows = (serviceId: string): number => {
+  // Calcula a altura do agendamento baseado na duração em pixels
+  const getBookingHeight = (serviceId: string): number => {
     const service = services.find((s) => s.id === serviceId);
     const duration = service?.duration || 30;
-    return Math.ceil(duration / SLOT_DURATION);
+    // Cada 30 minutos = 48px, então: (duration / 30) * 48
+    return (duration / SLOT_DURATION) * 48;
   };
 
   const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
@@ -135,35 +136,48 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
                   );
 
                   if (booking) {
+                    console.log(booking.clientName)
                     renderedBookingIds.add(booking.id);
-                    const spanRows = getBookingSpanRows(booking.serviceId);
+                    const bookingHeight = getBookingHeight(booking.serviceId);
                     const statusColor = STATUS_COLORS[booking.status];
+                    const isSmallSlot = bookingHeight < 60; // Menos de 1 slot inteiro
 
                     return (
                       <div
                         key={cellKey}
-                        className={`p-2 border-2 rounded-lg flex flex-col justify-center items-center cursor-pointer hover:shadow-lg transition-shadow ${statusColor.bg} ${statusColor.border} ${statusColor.text} overflow-hidden m-0.5`}
+                        className={`p-1 border-2 z-10 rounded-lg flex flex-col justify-center items-center cursor-pointer hover:shadow-lg transition-shadow ${statusColor.bg} ${statusColor.border} ${statusColor.text} overflow-hidden`}
                         style={{
                           gridColumn: dayIndex + 2,
-                          gridRow: `${timeIndex + 1} / span ${spanRows}`,
+                          gridRow: `${timeIndex + 1} / span 1`,
+                          height: `${bookingHeight}px`,
+                          alignSelf: 'start',
                         }}
                         title={`${booking.clientName} - ${booking.clientPhone}`}
                       >
-                        <div className='text-xs font-semibold text-center truncate w-full'>
-                          {booking.clientName.split(' ')[0]} - {booking.clientPhone}
-                        </div>
-                        <div className='text-xs font-semibold text-center truncate w-full'>
-                          {services.find((s) => s.id === booking.serviceId)?.name || 'Serviço'}
-                        </div>
-                        <div className='text-xs text-center'>
-                          {booking.time}
-                        </div>
-                        <div className='text-xs font-medium'>
-                          {booking.status === 'confirmed' && '✓'}
-                          {booking.status === 'pending' && '⏳'}
-                          {booking.status === 'completed' && '✓✓'}
-                          {booking.status === 'cancelled' && '✗'}
-                        </div>
+                        {isSmallSlot ? (
+                          // Versão compacta para slots pequenos
+                          <div className='text-xs font-semibold text-center truncate w-full'>
+                            {booking.clientName.split(' ')[0]}  - {booking.clientPhone}
+                          </div>
+                        ) : (
+                          // Versão completa para slots maiores
+                          <>
+                            <div className='text-xs font-semibold text-center truncate w-full'>
+                              {booking.clientName.split(' ')[0]} - {booking.clientPhone}
+                            </div>
+                            <div className='text-xs font-semibold text-center truncate w-full'>
+                              {services.find((s) => s.id === booking.serviceId)?.name || 'Serviço'}
+                            </div>
+                            {/* {bookingHeight > 90 && (
+                              <div className='text-xs font-medium'>
+                                {booking.status === 'confirmed' && '✓'}
+                                {booking.status === 'pending' && '⏳'}
+                                {booking.status === 'completed' && '✓✓'}
+                                {booking.status === 'cancelled' && '✗'}
+                              </div>
+                            )} */}
+                          </>
+                        )}
                       </div>
                     );
                   }

@@ -92,10 +92,6 @@ export default function Schedule() {
     setCurrentDate(new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000));
   };
 
-  const goToToday = () => {
-    setCurrentDate(new Date());
-  };
-
   return (
     <div className='min-h-screen bg-gray-50 p-6'>
       <div className='max-w-7xl mx-auto'>
@@ -107,6 +103,9 @@ export default function Schedule() {
 
         {/* Controls */}
         <div className='bg-white rounded-lg shadow-md p-6 mb-6'>
+          <label className='block text-lg font-semibold text-gray-900 mb-4'>
+            Filtros
+          </label>
           {/* Professional Selector */}
           <div className='mb-6'>
             <label className='block text-sm font-medium text-gray-700 mb-3'>
@@ -141,7 +140,7 @@ export default function Schedule() {
           <div className='flex items-center justify-between'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>Semana</label>
-              <div className='flex gap-2'>
+              <div className='flex gap-2 items-center'>
                 <button
                   onClick={previousWeek}
                   className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
@@ -150,12 +149,18 @@ export default function Schedule() {
                   <ChevronLeft size={20} className='text-gray-600' />
                 </button>
 
-                <button
-                  onClick={goToToday}
-                  className='px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors'
-                >
-                  Hoje
-                </button>
+                <p className='text-sm text-gray-600 text-center'>
+                  {weekDates[0].toLocaleDateString('pt-BR', {
+                    day: 'numeric',
+                    month: 'short',
+                  })}{' '}
+                  -{' '}
+                  {weekDates[6].toLocaleDateString('pt-BR', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                </p>
 
                 <button
                   onClick={nextWeek}
@@ -165,21 +170,6 @@ export default function Schedule() {
                   <ChevronRight size={20} className='text-gray-600' />
                 </button>
               </div>
-            </div>
-
-            <div className='text-right'>
-              <p className='text-sm text-gray-600'>
-                {weekDates[0].toLocaleDateString('pt-BR', {
-                  day: 'numeric',
-                  month: 'short',
-                })}{' '}
-                -{' '}
-                {weekDates[6].toLocaleDateString('pt-BR', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                })}
-              </p>
             </div>
           </div>
         </div>
