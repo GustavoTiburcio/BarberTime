@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Booking } from '../types';
 import { services } from '../mocks';
+import BookingDetailModal from './BookingDetailModal';
 
 interface ScheduleGridProps {
   bookings: Booking[];
@@ -35,6 +36,9 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
 };
 
 export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps) {
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Gera slots de 30 minutos para cada hora
   const timeSlots = useMemo(() => {
     const slots = [];
@@ -136,7 +140,6 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
                   );
 
                   if (booking) {
-                    console.log(booking.clientName)
                     renderedBookingIds.add(booking.id);
                     const bookingHeight = getBookingHeight(booking.serviceId);
                     const statusColor = STATUS_COLORS[booking.status];
@@ -151,6 +154,10 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
                           gridRow: `${timeIndex + 1} / span 1`,
                           height: `${bookingHeight}px`,
                           alignSelf: 'start',
+                        }}
+                        onClick={() => {
+                          setSelectedBooking(booking);
+                          setIsModalOpen(true);
                         }}
                         title={`${booking.clientName} - ${booking.clientPhone}`}
                       >
@@ -216,6 +223,16 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
           ))}
         </div>
       </div>
+
+      {/* Modal de Detalhes */}
+      <BookingDetailModal
+        booking={selectedBooking}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedBooking(null);
+        }}
+      />
     </div>
   );
 }
