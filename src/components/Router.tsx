@@ -9,6 +9,7 @@ import Header from './Header';
 import Dashboard from '../pages/Dashboard';
 import Professionals from '../pages/Professionals';
 import Services from '../pages/Services';
+import Schedule from '../pages/Schedule';
 
 
 function LayoutFixo() {
@@ -31,6 +32,7 @@ export default function RouterComponent() {
         <Route path='/dashboard' element={<Dashboard />}>
           <Route path='professionals' element={<Professionals />} />
           <Route path='services' element={<Services />} />
+          <Route path='schedule' element={<Schedule />} />
         </Route>
       </Routes>
     </Router>

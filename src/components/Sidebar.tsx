@@ -1,6 +1,6 @@
 // Sidebar.tsx
 import { NavLink } from "react-router-dom";
-import { Scissors, Users, X } from "lucide-react";
+import { Scissors, Users, X, Calendar } from "lucide-react";
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
@@ -28,6 +28,21 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           </button>
         </div>
         <nav className="space-y-2">
+          <NavLink
+            to="/dashboard/schedule"
+            className={({ isActive }) =>
+              `flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                isActive
+                  ? "bg-amber-100 text-amber-700 font-medium"
+                  : "hover:bg-gray-100 text-gray-700"
+              }`
+            }
+            onClick={onClose}
+          >
+            <Calendar className="w-4 h-4" />
+            Agenda
+          </NavLink>
+
           <NavLink
             to="/dashboard/professionals"
             className={({ isActive }) =>
