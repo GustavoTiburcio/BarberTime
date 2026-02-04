@@ -4,12 +4,12 @@ import {
   Outlet,
   Routes,
 } from 'react-router-dom';
-import Booking from '../pages_temp/Booking';
+import Booking from '../pages/Booking';
 import Header from './Header';
-import Dashboard from '../pages_temp/Dashboard';
-import Professionals from '../pages_temp/Professionals';
-import Services from '../pages_temp/Services';
-import Schedule from '../pages_temp/Schedule';
+import Dashboard from '../pages/Dashboard';
+import Professionals from '../pages/Professionals';
+import Services from '../pages/Services';
+import Schedule from '../pages/Schedule';
 
 
 function LayoutFixo() {
