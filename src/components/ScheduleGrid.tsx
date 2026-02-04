@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Booking } from '../types';
+import { services } from '../mocks';
 
 interface ScheduleGridProps {
   bookings: Booking[];
@@ -45,10 +46,17 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
     return slots;
   }, []);
 
-  // Encontra agendamentos para uma célula específica
-  const getBookingForSlot = (date: Date, time: string): Booking | undefined => {
+  // Encontra agendamentos para uma data
+  const getBookingsForDate = (date: Date): Booking[] => {
     const dateStr = date.toISOString().split('T')[0];
-    return bookings.find((booking) => booking.date === dateStr && booking.time === time);
+    return bookings.filter((booking) => booking.date === dateStr);
+  };
+
+  // Calcula quantos slots o agendamento ocupa baseado na duração
+  const getBookingSpanRows = (serviceId: string): number => {
+    const service = services.find((s) => s.id === serviceId);
+    const duration = service?.duration || 30;
+    return Math.ceil(duration / SLOT_DURATION);
   };
 
   const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
@@ -94,51 +102,86 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
           </div>
 
           {/* Grid de horários e agendamentos */}
-          <div className='relative'>
-            {timeSlots.map((time) => (
-              <div
-                key={time}
-                className='grid grid-cols-[80px_repeat(7,1fr)] gap-0 border-b border-gray-100 hover:bg-gray-50 transition-colors'
-              >
-                {/* Coluna de horários */}
-                <div className='bg-gray-50 p-4 text-sm font-medium text-gray-700 border-r border-gray-200'>
+          <div className='overflow-x-auto'>
+            <div
+              className='grid gap-0'
+              style={{
+                gridTemplateColumns: '80px repeat(7, 1fr)',
+                gridAutoRows: '48px',
+              }}
+            >
+              {/* Coluna de horários */}
+              {timeSlots.map((time, index) => (
+                <div
+                  key={`hour-${time}`}
+                  className='bg-gray-50 p-2 text-sm font-medium text-gray-700 border-r border-b border-gray-200 flex items-center justify-center'
+                  style={{ gridColumn: 1, gridRow: index + 1 }}
+                >
                   {time}
                 </div>
+              ))}
 
-                {/* Slots de cada dia */}
-                {weekDates.map((date) => {
-                  const booking = getBookingForSlot(date, time);
-                  const statusColor = booking ? STATUS_COLORS[booking.status] : null;
+              {/* Slots de cada dia */}
+              {weekDates.map((date, dayIndex) => {
+                const dateBookings = getBookingsForDate(date);
+                const renderedBookingIds = new Set<string>();
 
+                return timeSlots.map((time, timeIndex) => {
+                  const cellKey = `${date.toISOString()}-${time}`;
+
+                  // Encontra um agendamento que começa neste slot
+                  const booking = dateBookings.find(
+                    (b) => b.time === time && !renderedBookingIds.has(b.id)
+                  );
+
+                  if (booking) {
+                    renderedBookingIds.add(booking.id);
+                    const spanRows = getBookingSpanRows(booking.serviceId);
+                    const statusColor = STATUS_COLORS[booking.status];
+
+                    return (
+                      <div
+                        key={cellKey}
+                        className={`p-2 border-2 rounded-lg flex flex-col justify-center items-center cursor-pointer hover:shadow-lg transition-shadow ${statusColor.bg} ${statusColor.border} ${statusColor.text} overflow-hidden m-0.5`}
+                        style={{
+                          gridColumn: dayIndex + 2,
+                          gridRow: `${timeIndex + 1} / span ${spanRows}`,
+                        }}
+                        title={`${booking.clientName} - ${booking.clientPhone}`}
+                      >
+                        <div className='text-xs font-semibold text-center truncate w-full'>
+                          {booking.clientName.split(' ')[0]} - {booking.clientPhone}
+                        </div>
+                        <div className='text-xs font-semibold text-center truncate w-full'>
+                          {services.find((s) => s.id === booking.serviceId)?.name || 'Serviço'}
+                        </div>
+                        <div className='text-xs text-center'>
+                          {booking.time}
+                        </div>
+                        <div className='text-xs font-medium'>
+                          {booking.status === 'confirmed' && '✓'}
+                          {booking.status === 'pending' && '⏳'}
+                          {booking.status === 'completed' && '✓✓'}
+                          {booking.status === 'cancelled' && '✗'}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Renderiza célula vazia
                   return (
                     <div
-                      key={`${date.toISOString()}-${time}`}
-                      className='p-2 border-r border-gray-200 min-h-12 flex items-center justify-center'
-                    >
-                      {booking && (
-                        <div
-                          className={`w-full h-full rounded-lg p-2 border-2 flex flex-col justify-center items-center cursor-pointer hover:shadow-lg transition-shadow ${statusColor?.bg} ${statusColor?.border} ${statusColor?.text}`}
-                          title={`${booking.clientName} - ${booking.clientPhone}`}
-                        >
-                          <div className='text-xs font-semibold text-center truncate'>
-                            {booking.clientName.split(' ')[0]}
-                          </div>
-                          <div className='text-xs text-center'>
-                            {time}
-                          </div>
-                          <div className='text-xs font-medium capitalize'>
-                            {booking.status === 'confirmed' && '✓'}
-                            {booking.status === 'pending' && '⏳'}
-                            {booking.status === 'completed' && '✓✓'}
-                            {booking.status === 'cancelled' && '✗'}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                      key={cellKey}
+                      className='border-r border-b border-gray-100 hover:bg-gray-50 transition-colors'
+                      style={{
+                        gridColumn: dayIndex + 2,
+                        gridRow: timeIndex + 1,
+                      }}
+                    />
                   );
-                })}
-              </div>
-            ))}
+                });
+              })}
+            </div>
           </div>
         </div>
       </div>

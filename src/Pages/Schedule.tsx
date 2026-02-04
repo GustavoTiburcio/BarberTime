@@ -15,7 +15,7 @@ const mockBookings: Booking[] = [
     clientPhone: '11999999999',
     date: new Date().toISOString().split('T')[0],
     time: '09:00',
-    serviceId: '',
+    serviceId: '2',
     professionalId: '1',
     status: 'confirmed',
     createdAt: new Date().toISOString(),
