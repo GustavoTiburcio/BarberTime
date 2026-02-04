@@ -68,10 +68,27 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
 
   return (
     <div className='bg-white rounded-lg shadow-md overflow-hidden'>
+      {/* Legenda */}
+      <div className='bg-gray-50 p-4 border-t border-gray-200'>
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-sm'>
+          {Object.entries(STATUS_COLORS).map(([status, colors]) => (
+            <div key={status} className='flex items-center justify-center gap-2'>
+              <div className={`w-4 h-4 rounded border-2 ${colors.bg} ${colors.border}`}></div>
+              <span className='text-gray-700 capitalize'>
+                {status === 'confirmed' && 'Confirmado'}
+                {status === 'pending' && 'Pendente'}
+                {status === 'completed' && 'Completo'}
+                {status === 'cancelled' && 'Cancelado'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
       {/* Header com dias */}
       <div className='overflow-x-auto'>
         <div className='inline-block min-w-full'>
-          <div className='grid gap-0 border-b border-gray-200' style={{ gridTemplateColumns: 'minmax(45px, 45px) repeat(7, minmax(60px, 1fr))' }}>
+          <div className='grid gap-0 border-t border-gray-200' style={{ gridTemplateColumns: 'minmax(45px, 45px) repeat(7, minmax(60px, 1fr))' }}>
             {/* Coluna de horários (vazia) */}
             <div className='bg-gray-50 p-2 sm:p-4 border-r border-gray-200'></div>
 
@@ -198,24 +215,7 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
           </div>
         </div>
       </div>
-
-      {/* Legenda */}
-      <div className='bg-gray-50 p-4 border-t border-gray-200'>
-        <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-sm'>
-          {Object.entries(STATUS_COLORS).map(([status, colors]) => (
-            <div key={status} className='flex items-center gap-2'>
-              <div className={`w-4 h-4 rounded border-2 ${colors.bg} ${colors.border}`}></div>
-              <span className='text-gray-700 capitalize'>
-                {status === 'confirmed' && 'Confirmado'}
-                {status === 'pending' && 'Pendente'}
-                {status === 'completed' && 'Completo'}
-                {status === 'cancelled' && 'Cancelado'}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
+      
       {/* Modal de Detalhes */}
       <BookingDetailModal
         booking={selectedBooking}
