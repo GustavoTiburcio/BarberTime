@@ -34,7 +34,7 @@ export function ServiceSelector({ selectedService, onServiceSelect }: ServiceSel
                 <span>{service.duration}min</span>
               </div>
               <div className="flex items-center gap-1 font-semibold text-amber-600">
-                <span>R$ {service.price}</span>
+                <span>R$ {service.price.toFixed(2)}</span>
               </div>
             </div>
           </div>

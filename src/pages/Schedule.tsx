@@ -12,7 +12,7 @@ const mockBookings: Booking[] = [
   {
     id: '1',
     clientName: 'João Silva',
-    clientPhone: '11999999999',
+    clientPhone: '(44) 98888-8888',
     date: new Date().toISOString().split('T')[0],
     time: '09:00',
     serviceId: '2',
@@ -23,7 +23,7 @@ const mockBookings: Booking[] = [
   {
     id: '2',
     clientName: 'Maria Santos',
-    clientPhone: '11988888888',
+    clientPhone: '(44) 98888-8888',
     date: new Date().toISOString().split('T')[0],
     time: '10:00',
     serviceId: '6',
@@ -34,7 +34,7 @@ const mockBookings: Booking[] = [
   {
     id: '3',
     clientName: 'Pedro Costa',
-    clientPhone: '11977777777',
+    clientPhone: '(44) 98888-8888',
     date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
     time: '14:00',
     serviceId: '1',
@@ -45,7 +45,7 @@ const mockBookings: Booking[] = [
   {
     id: '4',
     clientName: 'Ana Ferreira',
-    clientPhone: '11966666666',
+    clientPhone: '(44) 98888-8888',
     date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
     time: '15:00',
     serviceId: '3',
