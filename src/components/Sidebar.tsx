@@ -15,10 +15,15 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
 
       <aside
         className={`
-          fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 p-6
-          transform transition-transform duration-300 z-50
-          ${open ? "translate-x-0" : "-translate-x-full"} 
-          lg:static lg:translate-x-0 lg:block lg:min-h-screen lg:flex-shrink-0
+          fixed top-0 left-0 z-50
+          h-full w-64
+          bg-white border-r border-gray-200 p-6
+          transform transition-transform duration-300
+          overflow-y-auto
+
+          ${open ? "translate-x-0" : "-translate-x-full"}
+
+          lg:translate-x-0
         `}
       >
         <div className="flex justify-between items-center mb-6">
