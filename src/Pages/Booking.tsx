@@ -26,7 +26,7 @@ const schema = z.object({
   professionalId: z.string().min(1, 'Faltou selecionar o profissional'),
 });
 
-function Booking() {
+export default function Booking() {
   const [showModal, setShowModal] = useState(false);
 
   const form = useForm({
@@ -170,5 +170,3 @@ function Booking() {
     </div>
   );
 }
-
-export default Booking;
