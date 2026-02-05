@@ -12,7 +12,7 @@ import { BookingModal } from '../components/BookingModal';
 import Footer from '../components/Footer';
 
 import { formatDate, scrollToSection } from '../utils';
-import { useBooking } from '../hooks/useBooking';
+import { useCreateBooking } from '../hooks/useCreateBooking';
 import { useServices } from '../hooks/useServices';
 import { useProfessionals } from '../hooks/useProfessionals';
 import { useAvailability } from '../hooks/useAvailability';
@@ -53,7 +53,7 @@ export default function Booking() {
 
   const { data: services = [] } = useServices();
   const { data: professionals = [] } = useProfessionals();
-  const { confirmBooking, isLoading } = useBooking({
+  const { confirmBooking, isLoading } = useCreateBooking({
     onSuccess: () => {
       setShowModal(false);
       form.reset();

@@ -7,6 +7,7 @@ interface ScheduleGridProps {
   weekDates: Date[];
   services: Service[];
   professionals: Professional[];
+  isLoading?: boolean;
 }
 
 const OPENING_HOUR = 8;
@@ -36,7 +37,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
   },
 };
 
-export default function ScheduleGrid({ bookings, weekDates, services, professionals }: ScheduleGridProps) {
+export default function ScheduleGrid({ bookings, weekDates, services, professionals, isLoading }: ScheduleGridProps) {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -80,7 +81,15 @@ export default function ScheduleGrid({ bookings, weekDates, services, profession
   const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 
   return (
-    <div className='bg-white rounded-lg shadow-md overflow-hidden'>
+    <div className='bg-white rounded-lg shadow-md overflow-hidden relative'>
+      {isLoading && (
+        <div className='absolute inset-0 bg-white/70 z-30 flex items-center justify-center'>
+          <div className='flex flex-col items-center gap-3'>
+            <div className='w-8 h-8 border-4 border-t-blue-600 rounded-full animate-spin' />
+            <div className='text-sm text-gray-700'>Carregando agendamentos...</div>
+          </div>
+        </div>
+      )}
       {/* Legenda */}
       <div className='bg-gray-50 p-4 border-t border-gray-200'>
         <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-sm'>

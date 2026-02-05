@@ -14,7 +14,7 @@ export default function Schedule() {
     ''
   );
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { data: professionals = [] } = useProfessionals();
+  const { data: professionals = [], isLoading: isProfessionalsLoading } = useProfessionals();
   const { data: services = [] } = useServices();
 
   const getWeekDates = (date: Date) => {
@@ -33,8 +33,20 @@ export default function Schedule() {
   };
 
   const weekDates = getWeekDates(new Date(currentDate));
-  const startDate = weekDates[0].toISOString().split('T')[0];
-  const endDate = weekDates[6].toISOString().split('T')[0];
+
+  // Maintain a preload range in state so we only fetch when navigating outside it
+  const [preloadRange, setPreloadRange] = useState(() => {
+    const weekStart = weekDates[0];
+    const weekEnd = weekDates[6];
+    const ps = new Date(weekStart);
+    ps.setDate(ps.getDate() - 14);
+    const pe = new Date(weekEnd);
+    pe.setDate(pe.getDate() + 28);
+    return { start: ps, end: pe };
+  });
+
+  const startDate = preloadRange.start.toISOString().split('T')[0];
+  const endDate = preloadRange.end.toISOString().split('T')[0];
 
   // Busca bookings da API
   const { data: bookings = [], isLoading } = useBookings({
@@ -44,11 +56,38 @@ export default function Schedule() {
   });
 
   const previousWeek = () => {
-    setCurrentDate(new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000));
+    const newDate = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const newWeekDates = getWeekDates(newDate);
+    const newWeekStart = newWeekDates[0];
+    const newWeekEnd = newWeekDates[6];
+
+    // If the newly displayed week is outside the preloadRange, expand the range
+    if (newWeekStart < preloadRange.start || newWeekEnd > preloadRange.end) {
+      const ps = new Date(newWeekStart);
+      ps.setDate(ps.getDate() - 14);
+      const pe = new Date(newWeekEnd);
+      pe.setDate(pe.getDate() + 28);
+      setPreloadRange({ start: ps, end: pe });
+    }
+
+    setCurrentDate(newDate);
   };
 
   const nextWeek = () => {
-    setCurrentDate(new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000));
+    const newDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const newWeekDates = getWeekDates(newDate);
+    const newWeekStart = newWeekDates[0];
+    const newWeekEnd = newWeekDates[6];
+
+    if (newWeekStart < preloadRange.start || newWeekEnd > preloadRange.end) {
+      const ps = new Date(newWeekStart);
+      ps.setDate(ps.getDate() - 14);
+      const pe = new Date(newWeekEnd);
+      pe.setDate(pe.getDate() + 28);
+      setPreloadRange({ start: ps, end: pe });
+    }
+
+    setCurrentDate(newDate);
   };
 
   return (
@@ -83,18 +122,28 @@ export default function Schedule() {
               >
                 Todos
               </button>
-              {professionals.map((professional) => (
-                <button
-                  key={professional.id}
-                  onClick={() => setSelectedProfessional(professional.id || '')}
-                  className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${selectedProfessional === professional.id
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'
-                    }`}
-                >
-                  {professional.name}
-                </button>
-              ))}
+              {isProfessionalsLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={`skeleton-${i}`}
+                    aria-hidden
+                    className='p-3 rounded-lg border-2 bg-gray-100 animate-pulse h-11'
+                  />
+                ))
+              ) : (
+                professionals.map((professional) => (
+                  <button
+                    key={professional.id}
+                    onClick={() => setSelectedProfessional(professional.id || '')}
+                    className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${selectedProfessional === professional.id
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'
+                      }`}
+                  >
+                    {professional.name}
+                  </button>
+                ))
+              )}
             </div>
           </div>
 
@@ -142,6 +191,7 @@ export default function Schedule() {
           weekDates={weekDates}
           services={services}
           professionals={professionals}
+          isLoading={isLoading}
         />
       </div>
     </div>
