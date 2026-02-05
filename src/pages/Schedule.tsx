@@ -1,71 +1,21 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import ScheduleGrid from '../components/ScheduleGrid';
-import { Booking } from '../types';
-import { professionals } from '../mocks';
 
-// Mock de agendamentos para demonstração
-const mockBookings: Booking[] = [
-  {
-    id: '1',
-    clientName: 'João Silva',
-    clientPhone: '(44) 98888-8888',
-    date: new Date().toISOString().split('T')[0],
-    time: '09:00',
-    serviceId: '2',
-    professionalId: '1',
-    status: 'confirmed',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    clientName: 'Maria Santos',
-    clientPhone: '(44) 98888-8888',
-    date: new Date().toISOString().split('T')[0],
-    time: '10:00',
-    serviceId: '6',
-    professionalId: '1',
-    status: 'confirmed',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    clientName: 'Pedro Costa',
-    clientPhone: '(44) 98888-8888',
-    date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-    time: '14:00',
-    serviceId: '1',
-    professionalId: '2',
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    clientName: 'Ana Ferreira',
-    clientPhone: '(44) 98888-8888',
-    date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-    time: '15:00',
-    serviceId: '3',
-    professionalId: '2',
-    status: 'confirmed',
-    createdAt: new Date().toISOString(),
-  },
-];
+import ScheduleGrid from '../components/ScheduleGrid';
+import { useServices } from '../hooks/useServices';
+import { useBookings } from '../hooks/useBookings';
+import { useProfessionals } from '../hooks/useProfessionals';
 
 export default function Schedule() {
   const [selectedProfessional, setSelectedProfessional] = useState<string>(
     ''
   );
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  // Filtra agendamentos do profissional selecionado
-  const filteredBookings = useMemo(
-    () => mockBookings.filter((booking) => booking.professionalId === selectedProfessional),
-    [selectedProfessional]
-  );
+  const { data: professionals = [] } = useProfessionals();
+  const { data: services = [] } = useServices();
 
   const getWeekDates = (date: Date) => {
     const dates = [];
@@ -83,6 +33,15 @@ export default function Schedule() {
   };
 
   const weekDates = getWeekDates(new Date(currentDate));
+  const startDate = weekDates[0].toISOString().split('T')[0];
+  const endDate = weekDates[6].toISOString().split('T')[0];
+
+  // Busca bookings da API
+  const { data: bookings = [], isLoading } = useBookings({
+    startDate,
+    endDate,
+    professionalId: selectedProfessional || undefined,
+  });
 
   const previousWeek = () => {
     setCurrentDate(new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000));
@@ -99,9 +58,12 @@ export default function Schedule() {
         <div className='mb-8'>
           <h1 className='text-3xl font-bold text-gray-900 mb-2'>Agenda</h1>
           <p className='text-gray-600'>Visualize os agendamentos dos profissionais</p>
+          {isLoading && (
+            <div className='mt-4 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm'>
+              Carregando agendamentos...
+            </div>
+          )}
         </div>
-
-        {/* Controls */}
         <div className='bg-white rounded-lg shadow-md p-6 mb-6'>
           <label className='block text-lg font-semibold text-gray-900 mb-4'>
             Filtros
@@ -175,7 +137,12 @@ export default function Schedule() {
         </div>
 
         {/* Schedule Grid */}
-        <ScheduleGrid bookings={selectedProfessional === '' ? mockBookings : filteredBookings} weekDates={weekDates} />
+        <ScheduleGrid
+          bookings={isLoading ? [] : bookings}
+          weekDates={weekDates}
+          services={services}
+          professionals={professionals}
+        />
       </div>
     </div>
   );

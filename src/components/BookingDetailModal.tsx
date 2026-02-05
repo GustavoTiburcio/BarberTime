@@ -1,14 +1,17 @@
-import { Booking } from '../types';
-import { services, professionals } from '../mocks';
 import { X } from 'lucide-react';
+
+import { Booking, Professional, Service } from '../types';
+import { useCancelBooking } from '../hooks/useCancelBooking';
 
 interface BookingDetailModalProps {
   booking: Booking | null;
+  services: Service[];
+  professionals: Professional[];
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function BookingDetailModal({ booking, isOpen, onClose }: BookingDetailModalProps) {
+export default function BookingDetailModal({ booking, services, professionals, isOpen, onClose }: BookingDetailModalProps) {
   if (!isOpen || !booking) return null;
 
   const service = services.find((s) => s.id === booking.serviceId);
@@ -27,6 +30,20 @@ export default function BookingDetailModal({ booking, isOpen, onClose }: Booking
     completed: 'bg-blue-100 text-blue-800',
     cancelled: 'bg-red-100 text-red-800',
   };
+
+  function CancelButton({ bookingId, onClose }: { bookingId: string; onClose: () => void }) {
+  const { cancelBooking, isLoading } = useCancelBooking({ onSuccess: onClose });
+
+  return (
+    <button
+      onClick={() => cancelBooking(bookingId)}
+      disabled={isLoading || booking?.status === 'cancelled'}
+      className={`flex-1 px-4 py-2 rounded-lg font-medium text-white transition-colors ${isLoading ? 'bg-red-300' : 'bg-red-500 hover:bg-red-600'} ${booking?.status === 'cancelled' ? 'cursor-not-allowed opacity-50' : ''}`}
+    >
+      {isLoading ? 'Cancelando...' : 'Cancelar'}
+    </button>
+  );
+}
 
   return (
     <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4'>
@@ -102,9 +119,8 @@ export default function BookingDetailModal({ booking, isOpen, onClose }: Booking
           <div>
             <h3 className='text-sm font-medium text-gray-500 uppercase mb-2'>Status</h3>
             <span
-              className={`inline-block px-4 py-2 rounded-full font-semibold ${
-                statusColors[booking.status]
-              }`}
+              className={`inline-block px-4 py-2 rounded-full font-semibold ${statusColors[booking.status]
+                }`}
             >
               {statusLabels[booking.status]}
             </span>
@@ -133,9 +149,9 @@ export default function BookingDetailModal({ booking, isOpen, onClose }: Booking
           >
             Fechar
           </button>
-          <button className='flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors'>
-            Editar
-          </button>
+          {booking && (
+            <CancelButton bookingId={booking.id} onClose={onClose} />
+          )}
         </div>
       </div>
     </div>
