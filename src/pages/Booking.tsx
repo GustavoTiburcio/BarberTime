@@ -11,9 +11,12 @@ import { BookingForm } from '../components/BookingForm';
 import { BookingModal } from '../components/BookingModal';
 import Footer from '../components/Footer';
 
-import { professionals, services } from '../mocks';
 import { formatDate, scrollToSection } from '../utils';
 import { useBooking } from '../hooks/useBooking';
+import { useServices } from '../hooks/useServices';
+import { useProfessionals } from '../hooks/useProfessionals';
+import { useAvailability } from '../hooks/useAvailability';
+
 
 const schema = z.object({
   clientName: z.string().min(3, 'Nome deve ter ao menos 3 caracteres'),
@@ -48,6 +51,8 @@ export default function Booking() {
   const serviceId = form.watch('serviceId');
   const professionalId = form.watch('professionalId');
 
+  const { data: services = [] } = useServices();
+  const { data: professionals = [] } = useProfessionals();
   const { confirmBooking, isLoading } = useBooking({
     onSuccess: () => {
       setShowModal(false);
@@ -55,6 +60,12 @@ export default function Booking() {
     },
     onError: () => setShowModal(false)
   });
+    const { data: availableTimes = [], isLoading: loadingAvailability } =
+    useAvailability({
+      date,
+      professionalId,
+      serviceId,
+    });
 
   const handleBookingSubmit = form.handleSubmit(() => {
     setShowModal(true);
@@ -113,9 +124,10 @@ export default function Booking() {
             />
 
             <ProfessionalSelector
+              professionals={professionals}
               selectedProfessional={professionalId}
-              onProfessionalSelect={(professionalId) => {
-                form.setValue('professionalId', professionalId);
+              onProfessionalSelect={(id) => {
+                form.setValue('professionalId', id);
                 scrollToSection('service-selector');
               }}
             />
@@ -124,18 +136,19 @@ export default function Booking() {
 
           <div className='space-y-8'>
             <ServiceSelector
+              services={services}
               selectedService={serviceId}
-              onServiceSelect={(serviceId) => {
-                form.setValue('serviceId', serviceId);
+              onServiceSelect={(id) => {
+                form.setValue('serviceId', id);
                 scrollToSection('time-slots-mobile');
               }}
             />
 
             <div id='time-slots-mobile'>
               <TimeSlots
-                selectedDate={date}
+                availableTimes={availableTimes}
+                loading={loadingAvailability}
                 selectedTime={time}
-                selectedProfessional={professionalId}
                 onTimeSelect={(time) => {
                   form.setValue('time', time);
                   scrollToSection('booking-form');
