@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { api } from '../lib/api';
 import { useAuth } from './useAuth';
 import type { BookingFormData } from '../types';
 
@@ -11,33 +12,29 @@ export function useBooking({ onSuccess, onError }: UseBookingProps = {}) {
   const { showToast } = useAuth();
 
   const mutation = useMutation({
-    mutationFn: async (data: BookingFormData) => console.log(data),
+    mutationFn: async (data: BookingFormData) => {
+      const response = await api.post('/bookings', data);
+      return response.data;
+    },
     onSuccess: () => {
       showToast({
-        message: 'Agendamento confirmado com sucesso! Você receberá uma confirmação em breve.',
-        type: 'success'
+        message: 'Agendamento confirmado com sucesso!',
+        type: 'success',
       });
-
       onSuccess?.();
     },
     onError: (error) => {
-      console.error('Erro ao confirmar agendamento:', error);
-
+      console.error(error);
       showToast({
-        message: 'Erro ao confirmar agendamento. Tente novamente.',
-        type: 'error'
+        message: 'Erro ao confirmar agendamento',
+        type: 'error',
       });
-
       onError?.(error);
-    }
+    },
   });
 
   return {
     confirmBooking: mutation.mutate,
-    confirmBookingAsync: mutation.mutateAsync, // útil se quiser usar async/await
     isLoading: mutation.isPending,
-    isSuccess: mutation.isSuccess,
-    isError: mutation.isError,
-    error: mutation.error,
   };
 }
