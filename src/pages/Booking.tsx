@@ -51,8 +51,8 @@ export default function Booking() {
   const serviceId = form.watch('serviceId');
   const professionalId = form.watch('professionalId');
 
-  const { data: services = [] } = useServices();
-  const { data: professionals = [] } = useProfessionals();
+  const { data: services = [], isLoading: isServicesLoading } = useServices();
+  const { data: professionals = [], isLoading: isProfessionalsLoading } = useProfessionals();
   const { confirmBooking, isLoading } = useCreateBooking({
     onSuccess: () => {
       setShowModal(false);
@@ -60,7 +60,7 @@ export default function Booking() {
     },
     onError: () => setShowModal(false)
   });
-    const { data: availableTimes = [], isLoading: loadingAvailability } =
+  const { data: availableTimes = [], isLoading: loadingAvailability } =
     useAvailability({
       date,
       professionalId,
@@ -81,7 +81,7 @@ export default function Booking() {
   return (
     <div className='min-h-screen bg-gray-50'>
       <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-        {(date || time || serviceId || professionalId) && (
+        {(date || time || serviceId || professionalId) ? (
           <div className='bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8 hidden lg:block'>
             <h2 className='text-lg font-semibold text-amber-800 mb-4'>Resumo do Agendamento</h2>
             <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm'>
@@ -111,7 +111,13 @@ export default function Booking() {
               )}
             </div>
           </div>
-        )}
+        ) :
+          (
+            <div className='text-center py-8'>
+              <p className='text-gray-500'>Selecione uma data, profissional e serviço para visualizar os horários disponíveis.</p>
+            </div>
+          )
+        }
 
         <div className='grid lg:grid-cols-2 gap-8'>
           <div className='space-y-8'>
@@ -130,6 +136,7 @@ export default function Booking() {
                 form.setValue('professionalId', id);
                 scrollToSection('service-selector');
               }}
+              isLoading={isProfessionalsLoading}
             />
 
           </div>
@@ -142,6 +149,7 @@ export default function Booking() {
                 form.setValue('serviceId', id);
                 scrollToSection('time-slots-mobile');
               }}
+              isLoading={isServicesLoading}
             />
 
             <div id='time-slots-mobile'>

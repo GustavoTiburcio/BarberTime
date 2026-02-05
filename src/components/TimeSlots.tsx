@@ -17,9 +17,15 @@ export function TimeSlots({
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Horários Disponíveis
         </h3>
-        <p className="text-gray-500 text-center py-8">
-          Carregando horários...
-        </p>
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div
+              key={`slot-skel-${i}`}
+              className="h-12 rounded-lg bg-gray-100 animate-pulse"
+              aria-hidden
+            />
+          ))}
+        </div>
       </div>
     );
   }
