@@ -70,12 +70,12 @@ export default function ScheduleGrid({ bookings, weekDates, services, profession
   const getBookingHeight = (booking: Booking): number => {
     // Primeiro tenta usar o service aninhado que vem da API
     if (booking.service?.duration) {
-      return (booking.service.duration / SLOT_DURATION) * 48;
+      return (booking.service.duration / SLOT_DURATION) * 40;
     }
     // Fallback: busca nos services do hook
     const service = services.find((s) => s.id === booking.serviceId);
     const duration = service?.duration || 30;
-    return (duration / SLOT_DURATION) * 48;
+    return (duration / SLOT_DURATION) * 40;
   };
 
   const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
