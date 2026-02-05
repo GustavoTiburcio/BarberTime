@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -10,9 +10,7 @@ import { useBookings } from '../hooks/useBookings';
 import { useProfessionals } from '../hooks/useProfessionals';
 
 export default function Schedule() {
-  const [selectedProfessional, setSelectedProfessional] = useState<string>(
-    ''
-  );
+  const [selectedProfessional, setSelectedProfessional] = useState<string>('');
   const [currentDate, setCurrentDate] = useState(new Date());
   const { data: professionals = [], isLoading: isProfessionalsLoading } = useProfessionals();
   const { data: services = [] } = useServices();
@@ -45,15 +43,26 @@ export default function Schedule() {
     return { start: ps, end: pe };
   });
 
+  // Auto-select first professional when professionals load
+  useEffect(() => {
+    if (!selectedProfessional && professionals.length > 0) {
+      setSelectedProfessional(professionals[0].id || '');
+    }
+  }, [professionals]);
+
   const startDate = preloadRange.start.toISOString().split('T')[0];
   const endDate = preloadRange.end.toISOString().split('T')[0];
 
-  // Busca bookings da API
-  const { data: bookings = [], isLoading } = useBookings({
-    startDate,
-    endDate,
-    professionalId: selectedProfessional || undefined,
-  });
+  // Only fetch bookings if a professional is selected
+  const { data: bookings = [], isLoading } = useBookings(
+    selectedProfessional
+      ? {
+          startDate,
+          endDate,
+          professionalId: selectedProfessional,
+        }
+      : { startDate: '', endDate: '' } // dummy params when no professional selected
+  );
 
   const previousWeek = () => {
     const newDate = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -113,15 +122,6 @@ export default function Schedule() {
               Profissional
             </label>
             <div className='grid grid-cols-2 md:grid-cols-4 gap-3'>
-              <button
-                onClick={() => setSelectedProfessional('')}
-                className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${selectedProfessional === ''
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'
-                  }`}
-              >
-                Todos
-              </button>
               {isProfessionalsLoading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <div
