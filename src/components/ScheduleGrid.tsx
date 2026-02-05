@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
-import { Booking } from '../types';
-import { services } from '../mocks';
+import { Booking, Professional, Service } from '../types';
 import BookingDetailModal from './BookingDetailModal';
 
 interface ScheduleGridProps {
   bookings: Booking[];
   weekDates: Date[];
+  services: Service[];
+  professionals: Professional[];
+  isLoading?: boolean;
 }
 
 const OPENING_HOUR = 8;
@@ -35,9 +37,10 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
   },
 };
 
-export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps) {
+export default function ScheduleGrid({ bookings, weekDates, services, professionals, isLoading }: ScheduleGridProps) {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   // Gera slots de 30 minutos para cada hora
   const timeSlots = useMemo(() => {
@@ -53,21 +56,40 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
   // Encontra agendamentos para uma data
   const getBookingsForDate = (date: Date): Booking[] => {
     const dateStr = date.toISOString().split('T')[0];
-    return bookings.filter((booking) => booking.date === dateStr);
+    const filtered = bookings.filter((booking) => {
+      // Normaliza a data do booking (remove hora se houver)
+      const bookingDateStr = typeof booking.date === 'string'
+        ? booking.date.split('T')[0]
+        : booking.date;
+      return bookingDateStr === dateStr;
+    });
+    return filtered;
   };
 
   // Calcula a altura do agendamento baseado na duração em pixels
-  const getBookingHeight = (serviceId: string): number => {
-    const service = services.find((s) => s.id === serviceId);
+  const getBookingHeight = (booking: Booking): number => {
+    // Primeiro tenta usar o service aninhado que vem da API
+    if (booking.service?.duration) {
+      return (booking.service.duration / SLOT_DURATION) * 48;
+    }
+    // Fallback: busca nos services do hook
+    const service = services.find((s) => s.id === booking.serviceId);
     const duration = service?.duration || 30;
-    // Cada 30 minutos = 48px, então: (duration / 30) * 48
     return (duration / SLOT_DURATION) * 48;
   };
 
   const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 
   return (
-    <div className='bg-white rounded-lg shadow-md overflow-hidden'>
+    <div className='bg-white rounded-lg shadow-md overflow-hidden relative'>
+      {isLoading && (
+        <div className='absolute inset-0 bg-white/70 z-30 flex items-center justify-center'>
+          <div className='flex flex-col items-center gap-3'>
+            <div className='w-8 h-8 border-4 border-t-blue-600 rounded-full animate-spin' />
+            <div className='text-sm text-gray-700'>Carregando agendamentos...</div>
+          </div>
+        </div>
+      )}
       {/* Legenda */}
       <div className='bg-gray-50 p-4 border-t border-gray-200'>
         <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-sm'>
@@ -84,7 +106,7 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
           ))}
         </div>
       </div>
-      
+
       {/* Header com dias */}
       <div className='overflow-x-auto'>
         <div className='inline-block min-w-full'>
@@ -103,9 +125,8 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
               return (
                 <div
                   key={date.toISOString()}
-                  className={`p-2 sm:p-4 text-center border-r border-gray-200 ${
-                    isToday ? 'bg-blue-50' : 'bg-gray-50'
-                  }`}
+                  className={`p-2 sm:p-4 text-center border-r border-gray-200 ${isToday ? 'bg-blue-50' : 'bg-gray-50'
+                    }`}
                 >
                   <div className={`text-xs sm:text-sm font-medium ${isToday ? 'text-blue-700' : 'text-gray-700'}`}>
                     {dayNames[index]}
@@ -153,14 +174,21 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
 
                   // Encontra um agendamento que começa neste slot
                   const booking = dateBookings.find(
-                    (b) => b.time === time && !renderedBookingIds.has(b.id)
+                    (b) => {
+                      const bookingTime = typeof b.time === 'string'
+                        ? b.time.substring(0, 5)
+                        : b.time;
+                      return bookingTime === time && !renderedBookingIds.has(b.id);
+                    }
                   );
 
                   if (booking) {
                     renderedBookingIds.add(booking.id);
-                    const bookingHeight = getBookingHeight(booking.serviceId);
+                    const bookingHeight = getBookingHeight(booking);
                     const statusColor = STATUS_COLORS[booking.status];
-                    const isSmallSlot = bookingHeight < 60; // Menos de 1 slot inteiro
+                    const isSmallSlot = bookingHeight < 60;
+                    // Calcula quantos slots o booking deve ocupar
+                    const slotsSpan = Math.ceil(bookingHeight / 40);
 
                     return (
                       <div
@@ -168,7 +196,7 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
                         className={`p-0.5 sm:p-1 border-2 z-10 rounded-lg flex flex-col justify-center items-center cursor-pointer hover:shadow-lg transition-shadow ${statusColor.bg} ${statusColor.border} ${statusColor.text} overflow-hidden`}
                         style={{
                           gridColumn: dayIndex + 2,
-                          gridRow: `${timeIndex + 1} / span 1`,
+                          gridRow: `${timeIndex + 1} / span ${slotsSpan}`,
                           height: `${bookingHeight}px`,
                           alignSelf: 'start',
                         }}
@@ -190,7 +218,7 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
                               {booking.clientName.split(' ')[0]}
                             </div>
                             <div className='text-xs font-semibold text-center truncate w-full hidden sm:block'>
-                              {services.find((s) => s.id === booking.serviceId)?.name || 'Serviço'}
+                              {booking.service?.name || services.find((s) => s.id === booking.serviceId)?.name || 'Serviço'}
                             </div>
                           </>
                         )}
@@ -215,11 +243,13 @@ export default function ScheduleGrid({ bookings, weekDates }: ScheduleGridProps)
           </div>
         </div>
       </div>
-      
+
       {/* Modal de Detalhes */}
       <BookingDetailModal
         booking={selectedBooking}
         isOpen={isModalOpen}
+        services={services}
+        professionals={professionals}
         onClose={() => {
           setIsModalOpen(false);
           setSelectedBooking(null);

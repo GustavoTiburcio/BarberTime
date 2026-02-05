@@ -12,7 +12,7 @@ export default function Dashboard() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Conteúdo principal */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col lg:ml-64">
         {/* Botão para abrir sidebar no mobile */}
         <div className="lg:hidden p-3 bg-white border-b border-gray-200 flex items-center">
           <button

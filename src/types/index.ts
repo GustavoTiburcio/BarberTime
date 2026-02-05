@@ -25,8 +25,10 @@ export interface Booking {
   clientPhone: string;
   date: string;
   time: string;
-  serviceId: string;
-  professionalId: string;
+  serviceId?: string;
+  professionalId?: string;
+  service?: Service;
+  professional?: Professional;
   status: 'confirmed' | 'pending' | 'completed' | 'cancelled';
   createdAt: string;
 }

@@ -8,7 +8,7 @@ interface UseBookingProps {
   onError?: (error: unknown) => void;
 }
 
-export function useBooking({ onSuccess, onError }: UseBookingProps = {}) {
+export function useCreateBooking({ onSuccess, onError }: UseBookingProps = {}) {
   const { showToast } = useAuth();
 
   const mutation = useMutation({
