@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
+import { Trash2 } from "lucide-react";
 
 import { Button } from "../components/Button";
 import { Modal} from "../components/Modal";
@@ -8,6 +9,7 @@ import { Professional } from '../types';
 import { useProfessionals } from '../hooks/useProfessionals';
 import { useCreateProfessional } from '../hooks/useCreateProfessional';
 import { useUpdateProfessional } from '../hooks/useUpdateProfessional';
+import { useDeleteProfessional } from '../hooks/useDeleteProfessional';
 
 const professionalSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
@@ -22,6 +24,13 @@ export default function Professionals() {
   const { data: professionals = [], isLoading } = useProfessionals();
   const createMutation = useCreateProfessional();
   const updateMutation = useUpdateProfessional();
+  const deleteMutation = useDeleteProfessional();
+
+  const handleDelete = async (professionalId: string) => {
+    if (confirm("Tem certeza que deseja deletar este profissional?")) {
+      await deleteMutation.mutateAsync(professionalId);
+    }
+  };
 
   const handleEdit = (prof: Professional) => {
     setEditingProfessional(prof);
@@ -83,8 +92,22 @@ export default function Professionals() {
           : professionals.map((prof) => (
               <div
                 key={prof.id}
-                className="bg-white rounded-xl shadow-sm p-4 border border-gray-100"
+                className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 relative"
               >
+                <button
+                  onClick={() => handleDelete(prof.id)}
+                  disabled={deleteMutation.isPending}
+                  className="absolute top-4 right-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Deletar"
+                >
+                  {deleteMutation.isPending ? (
+                    <div className="animate-spin">
+                      <Trash2 className="w-4 h-4" />
+                    </div>
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                </button>
                 <div className="flex items-center gap-3 mb-3">
                   <img
                     src={prof.avatar}
@@ -98,7 +121,7 @@ export default function Professionals() {
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1 mb-3">
                   {prof.specialties.map((spec) => (
                     <span
                       key={spec}
@@ -108,7 +131,7 @@ export default function Professionals() {
                     </span>
                   ))}
                 </div>
-                <Button className="mt-3" onClick={() => handleEdit(prof)}>
+                <Button className="w-full" onClick={() => handleEdit(prof)}>
                   Editar
                 </Button>
               </div>
