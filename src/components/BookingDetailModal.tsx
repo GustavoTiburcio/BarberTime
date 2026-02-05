@@ -74,7 +74,7 @@ export default function BookingDetailModal({ booking, isOpen, onClose }: Booking
               <p className='text-sm text-gray-600 mt-1'>{service?.description}</p>
               <div className='flex justify-between items-center mt-3 pt-3 border-t border-gray-200'>
                 <span className='text-sm text-gray-600'>Duração: {service?.duration} minutos</span>
-                <span className='font-semibold text-gray-900'>R$ {service?.price.toFixed(2)}</span>
+                <span className='font-semibold text-gray-900'>R$ {service?.price}</span>
               </div>
             </div>
           </div>

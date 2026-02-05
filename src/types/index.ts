@@ -1,10 +1,10 @@
-export interface Service {
-  id?: string;
+export type Service = {
+  id: string;
   name: string;
-  duration: number; // em minutos
+  description: string | null;
+  duration: number;
   price: number;
-  description: string;
-}
+};
 
 export interface Professional {
   id?: string;
