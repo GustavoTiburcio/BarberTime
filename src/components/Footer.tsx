@@ -10,7 +10,7 @@ export default function Footer() {
               <div className='flex items-center justify-center w-14 h-14 bg-[#FEF2CD] rounded-full'>
             <img src='https://imagizer.imageshack.com/img924/9087/k223Hr.png' alt='Logo' className='w-15 h-15 mix-blend-multiply rounded-full' />
           </div>
-              <h3 className='text-xl font-bold'>Lord”3 Barbearia</h3>
+              <h3 className='text-xl font-bold'>Lord”3 Barber Shop</h3>
             </div>
             <p className='text-gray-400'>
               A melhor experiência em cortes.
@@ -37,7 +37,7 @@ export default function Footer() {
         </div>
 
         <div className='border-t border-gray-800 pt-8 mt-8 text-center text-gray-400'>
-          <p>&copy; 2026 Lord”3 Barbearia. Desenvolvido por Gustavo Tiburcio.</p>
+          <p>&copy; 2026 Lord”3 Barber Shop. Desenvolvido por Gustavo Tiburcio.</p>
         </div>
       </div>
     </footer>

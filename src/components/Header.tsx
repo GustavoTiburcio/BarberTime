@@ -7,7 +7,7 @@ export default function Header() {
             <img src='https://imagizer.imageshack.com/img924/9087/k223Hr.png' alt='Logo' className='w-15 h-15 mix-blend-multiply rounded-full' />
           </div>
           <div>
-            <h1 className='text-2xl font-bold text-gray-900'>Lord”3 Barbearia</h1>
+            <h1 className='text-2xl font-bold text-gray-900'>Lord”3 Barber Shop</h1>
             <p className='text-gray-600'>Agende seu horário de forma rápida e prática</p>
           </div>
         </div>

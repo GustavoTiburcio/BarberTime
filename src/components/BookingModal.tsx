@@ -120,9 +120,9 @@ export function BookingModal({
                   <MapPin className="w-4 h-4 text-green-500" />
                   Local
                 </h3>
-                <p className="text-sm font-medium text-gray-900">BarberShop Elite</p>
-                <p className="text-sm text-gray-600">Rua das Barbearias, 123</p>
-                <p className="text-sm text-gray-600">Centro - São Paulo, SP</p>
+                <p className="text-sm font-medium text-gray-900">Lord”3 Barber Shop</p>
+                <p className="text-sm text-gray-600">Av. Aurora Rinck Vignoto n. 399</p>
+                <p className="text-sm text-gray-600">Jardim Aurora, Sarandi - PR</p>
               </div>
             </div>
 
