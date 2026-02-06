@@ -1,21 +1,27 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {Button} from '../components/Button';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/Button';
+import { useLogin } from '../hooks/useLogin';
+import { AxiosError } from 'axios';
 
 // Schema de validação com Zod
 const loginSchema = z.object({
   username: z
     .string()
-    .min(3, 'Usuário deve ter no mínimo 3 caracteres'),
+    .min(1, 'Usuário é obrigatório'),
   password: z
     .string()
-    .min(3, 'Senha deve ter no mínimo 3 caracteres'),
+    .min(1, 'Senha é obrigatória'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { mutate: login, isPending, isError, error } = useLogin();
+
   const {
     register,
     handleSubmit,
@@ -25,7 +31,11 @@ export default function Login() {
   });
 
   const onSubmit = (data: LoginFormData) => {
-    console.log('Login submit:', data);
+    login(data, {
+      onSuccess: () => {
+        navigate('/dashboard');
+      },
+    });
   };
 
   return (
@@ -34,10 +44,10 @@ export default function Login() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center justify-center w-24 h-24 bg-[#FEF2CD] rounded-full">
-            <img 
-              src='https://imagizer.imageshack.com/img924/9087/k223Hr.png' 
-              alt='Logo' 
-              className='w-20 h-20 mix-blend-multiply rounded-full' 
+            <img
+              src='https://imagizer.imageshack.com/img924/9087/k223Hr.png'
+              alt='Logo'
+              className='w-20 h-20 mix-blend-multiply rounded-full'
             />
           </div>
         </div>
@@ -50,6 +60,15 @@ export default function Login() {
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Error Message */}
+          {isError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-700">
+                {error instanceof AxiosError ? error.response?.data?.error || 'Erro ao fazer login. Tente novamente.' : error instanceof Error ? error.message : 'Erro ao fazer login. Tente novamente.'}
+              </p>
+            </div>
+          )}
+
           {/* Username Field */}
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
@@ -59,12 +78,12 @@ export default function Login() {
               id="username"
               type="text"
               placeholder="Digite seu usuário"
+              disabled={isPending}
               {...register('username')}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
-                errors.username 
-                  ? 'border-red-500 focus:ring-red-200' 
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition disabled:bg-gray-100 disabled:cursor-not-allowed ${errors.username
+                  ? 'border-red-500 focus:ring-red-200'
                   : 'border-gray-300 focus:ring-yellow-200 focus:border-yellow-400'
-              }`}
+                }`}
             />
             {errors.username && (
               <p className="mt-2 text-sm text-red-600">
@@ -82,12 +101,12 @@ export default function Login() {
               id="password"
               type="password"
               placeholder="Digite sua senha"
+              disabled={isPending}
               {...register('password')}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
-                errors.password 
-                  ? 'border-red-500 focus:ring-red-200' 
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition disabled:bg-gray-100 disabled:cursor-not-allowed ${errors.password
+                  ? 'border-red-500 focus:ring-red-200'
                   : 'border-gray-300 focus:ring-yellow-200 focus:border-yellow-400'
-              }`}
+                }`}
             />
             {errors.password && (
               <p className="mt-2 text-sm text-red-600">
@@ -99,9 +118,10 @@ export default function Login() {
           {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full text-white font-medium py-2 rounded-lg transition"
+            disabled={isPending}
+            className="w-full text-white font-medium py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Entrar
+            {isPending ? 'Entrando...' : 'Entrar'}
           </Button>
         </form>
 
