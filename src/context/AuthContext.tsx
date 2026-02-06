@@ -17,6 +17,7 @@ export interface IProfessional {
   specialties: string[];
   rating: string;
   username: string;
+  role: 'manager' | 'employee';
 }
 
 export const AuthContext = createContext({} as IAuthContextValue);

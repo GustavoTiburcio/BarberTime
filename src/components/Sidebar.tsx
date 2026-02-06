@@ -5,7 +5,21 @@ import { useAuth } from '../hooks/useAuth';
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
-  const { authenticatedUser } = useAuth();
+  const { authenticatedUser, logout } = useAuth();
+
+  const menuItems = [
+    { name: 'Dashboard', icon: <AreaChart className='w-4 h-4' />, path: '/menu/dashboard' },
+    { name: 'Agenda', icon: <Calendar className='w-4 h-4' />, path: '/menu/schedule' },
+    { name: 'Profissionais', icon: <Users className='w-4 h-4' />, path: '/menu/professionals' },
+    { name: 'Serviços', icon: <Scissors className='w-4 h-4' />, path: '/menu/services' },
+  ];
+
+  // Filter menu items by role: managers see all, employees only see schedule
+  const role = authenticatedUser?.role;
+  const visibleMenuItems = menuItems.filter((item) => {
+    if (role === 'employee') return item.path === '/menu/schedule';
+    return true;
+  });
 
   return (
     <>
@@ -44,9 +58,10 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
             <X />
           </button>
         </div>
-        <nav className='space-y-2'>
+        {visibleMenuItems.map((item) => (
           <NavLink
-            to='/menu/dashboard'
+            key={item.name}
+            to={item.path}
             className={({ isActive }) =>
               `flex items-center gap-2 px-4 py-2 rounded-lg transition ${isActive
                 ? 'bg-amber-100 text-amber-700 font-medium'
@@ -55,55 +70,15 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
             }
             onClick={onClose}
           >
-            <AreaChart className='w-4 h-4' />
-            Dashboard
+            {item.icon}
+            {item.name}
           </NavLink>
-          <NavLink
-            to='/menu/schedule'
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-4 py-2 rounded-lg transition ${isActive
-                ? 'bg-amber-100 text-amber-700 font-medium'
-                : 'hover:bg-gray-100 text-gray-700'
-              }`
-            }
-            onClick={onClose}
-          >
-            <Calendar className='w-4 h-4' />
-            Agenda
-          </NavLink>
-
-          <NavLink
-            to='/menu/professionals'
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-4 py-2 rounded-lg transition ${isActive
-                ? 'bg-amber-100 text-amber-700 font-medium'
-                : 'hover:bg-gray-100 text-gray-700'
-              }`
-            }
-            onClick={onClose}
-          >
-            <Users className='w-4 h-4' />
-            Profissionais
-          </NavLink>
-
-          <NavLink
-            to='/menu/services'
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-4 py-2 rounded-lg transition ${isActive
-                ? 'bg-amber-100 text-amber-700 font-medium'
-                : 'hover:bg-gray-100 text-gray-700'
-              }`
-            }
-            onClick={onClose}
-          >
-            <Scissors className='w-4 h-4' />
-            Serviços
-          </NavLink>
-
+          ))}
+        <nav className='mt-6 pt-6 border-t border-gray-200'>
           <div
             className='flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer'
             onClick={() => {
-              localStorage.removeItem('token');
+              logout();
               navigate('/login');
             }}
           >
