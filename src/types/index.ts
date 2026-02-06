@@ -12,6 +12,9 @@ export interface Professional {
   avatar: string;
   specialties: string[];
   rating: number;
+  username: string;
+  password?: string;
+  role: 'manager' | 'employee';
 }
 
 export interface TimeSlot {

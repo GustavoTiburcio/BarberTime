@@ -39,6 +39,18 @@ export function Modal<T>({
 
   if (!isOpen) return null;
 
+  const translatedFieldNames: Record<string, string> = {
+    name: 'Nome',
+    avatar: 'Imagem',
+    rating: 'Avaliação',
+    specialties: 'Especialidades',
+    username: 'Usuário',
+    password: 'Nova Senha',
+    description: 'Descrição',
+    duration: 'Duração',
+    price: 'Preço',
+  };
+
   return (
     <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
       <div className='bg-white p-6 rounded-xl w-full max-w-md shadow-lg relative'>
@@ -54,10 +66,10 @@ export function Modal<T>({
           {Object.keys(schema.shape).map((field) => (
             <div key={field} className='flex flex-col'>
               <label className='text-gray-700 font-medium capitalize'>
-                {field}
+                {translatedFieldNames[field] || field}
               </label>
               <input
-                type='text'
+                type={field === 'password' ? 'password' : 'text'}
                 {...register(field as keyof T)}
                 disabled={isSubmitting}
                 className='border border-gray-300 rounded-lg p-2 disabled:bg-gray-100 disabled:cursor-not-allowed'
