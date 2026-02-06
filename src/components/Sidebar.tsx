@@ -27,7 +27,15 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
         `}
       >
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Menu</h2>
+          <NavLink
+            to="/dashboard"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition 
+                ${"hover:bg-gray-100 text-gray-700"}
+              `}
+            onClick={onClose}
+          >
+          <h2 className="text-xl font-bold text-gray-900">Dashboard</h2>
+          </NavLink>
           <button className="lg:hidden text-gray-600" onClick={onClose}>
             <X />
           </button>

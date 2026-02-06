@@ -1,4 +1,5 @@
 import { X } from 'lucide-react';
+import WhatsappIcon from '../assets/whatsapp.svg?react';
 
 import { Booking, Professional, Service } from '../types';
 import { useCancelBooking } from '../hooks/useCancelBooking';
@@ -32,18 +33,18 @@ export default function BookingDetailModal({ booking, services, professionals, i
   };
 
   function CancelButton({ bookingId, onClose }: { bookingId: string; onClose: () => void }) {
-  const { cancelBooking, isLoading } = useCancelBooking({ onSuccess: onClose });
+    const { cancelBooking, isLoading } = useCancelBooking({ onSuccess: onClose });
 
-  return (
-    <button
-      onClick={() => cancelBooking(bookingId)}
-      disabled={isLoading || booking?.status === 'cancelled'}
-      className={`flex-1 px-4 py-2 rounded-lg font-medium text-white transition-colors ${isLoading ? 'bg-red-300' : 'bg-red-500 hover:bg-red-600'} ${booking?.status === 'cancelled' ? 'cursor-not-allowed opacity-50' : ''}`}
-    >
-      {isLoading ? 'Cancelando...' : 'Cancelar'}
-    </button>
-  );
-}
+    return (
+      <button
+        onClick={() => cancelBooking(bookingId)}
+        disabled={isLoading || booking?.status === 'cancelled'}
+        className={`flex-1 px-4 py-2 rounded-lg font-medium text-white transition-colors ${isLoading ? 'bg-red-300' : 'bg-red-500 hover:bg-red-600'} ${booking?.status === 'cancelled' ? 'cursor-not-allowed opacity-50' : ''}`}
+      >
+        {isLoading ? 'Cancelando...' : 'Cancelar'}
+      </button>
+    );
+  }
 
   return (
     <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4'>
@@ -147,11 +148,21 @@ export default function BookingDetailModal({ booking, services, professionals, i
             onClick={onClose}
             className='flex-1 px-4 py-2 bg-gray-100 text-gray-900 rounded-lg font-medium hover:bg-gray-200 transition-colors'
           >
-            Fechar
+            Voltar
           </button>
           {booking && (
             <CancelButton bookingId={booking.id} onClose={onClose} />
           )}
+          <button
+            onClick={() => {
+              const phone = booking.clientPhone.replace(/\D/g, '');
+              const url = `https://wa.me/55${phone}`;
+              window.open(url, '_blank');
+            }}
+            className='px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors'
+          >
+            <WhatsappIcon className="w-6 h-6" />
+          </button>
         </div>
       </div>
     </div>
