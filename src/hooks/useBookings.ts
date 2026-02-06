@@ -15,6 +15,7 @@ export function useBookings({ startDate, endDate, professionalId }: UseBookingsP
       const params = new URLSearchParams({
         startDate,
         endDate,
+        status: 'confirmed,completed,pending', // só traz os agendamentos ativos
         ...(professionalId && { professionalId }),
       });
       const { data } = await api.get(`/bookings?${params.toString()}`);
