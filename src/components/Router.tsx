@@ -12,6 +12,7 @@ import Professionals from '../pages/Professionals';
 import Services from '../pages/Services';
 import Schedule from '../pages/Schedule';
 import Login from '../pages/Login';
+import { ProtectedRoute } from './ProtectedRoute';
 
 
 function LayoutFixo() {
@@ -27,13 +28,19 @@ export default function RouterComponent() {
   return (
     <Router>
       <Routes>
+        {/* Rotas públicas */}
         <Route path="/login" element={<Login />} />
         
         <Route element={<LayoutFixo />}>
           <Route path='/' element={<Booking />} />
         </Route>
 
-        <Route path='/dashboard' element={<Dashboard />}>
+        {/* Rotas protegidas */}
+        <Route path='/dashboard' element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }>
           <Route index element={<DashboardHome />} />
           <Route path='professionals' element={<Professionals />} />
           <Route path='services' element={<Services />} />

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { useLogin } from '../hooks/useLogin';
+import { useAuth } from '../hooks/useAuth';
 import { AxiosError } from 'axios';
 
 // Schema de validação com Zod
@@ -20,6 +21,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const navigate = useNavigate();
+  const { markAsAuthenticated } = useAuth();
   const { mutate: login, isPending, isError, error } = useLogin();
 
   const {
@@ -33,6 +35,7 @@ export default function Login() {
   const onSubmit = (data: LoginFormData) => {
     login(data, {
       onSuccess: () => {
+        markAsAuthenticated();
         navigate('/dashboard');
       },
     });
