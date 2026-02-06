@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import { IProfessional } from '../context/AuthContext';
 
 interface LoginData {
   username: string;
@@ -8,7 +9,7 @@ interface LoginData {
 
 interface LoginResponse {
   token: string;
-  [key: string]: any;
+  professional: IProfessional;
 }
 
 export function useLogin() {

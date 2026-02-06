@@ -4,10 +4,19 @@ import { api } from '../lib/api';
 
 interface IAuthContextValue {
   showToast: ({ message, type }: { message: string; type: 'success' | 'error' | 'info' }) => void;
-  isAuthenticated: boolean;
+  authenticatedUser: IProfessional | null;
   isLoading: boolean;
   logout: () => void;
-  markAsAuthenticated: () => void;
+  markAuthenticatedUser: (professional: IProfessional) => void;
+}
+
+export interface IProfessional {
+  id: string;
+  name: string;
+  avatar: string;
+  specialties: string[];
+  rating: string;
+  username: string;
 }
 
 export const AuthContext = createContext({} as IAuthContextValue);
@@ -18,15 +27,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     message: '',
     type: 'success' as 'success' | 'error' | 'info'
   });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authenticatedUser, setAuthenticatedUser] = useState<IAuthContextValue['authenticatedUser']>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
-      
+
       if (!token) {
-        setIsAuthenticated(false);
+        setAuthenticatedUser(null);
         setIsLoading(false);
         return;
       }
@@ -35,15 +44,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const response = await api.get('/me', {
           params: { token }
         });
-        
+
         if (response.status === 200) {
-          setIsAuthenticated(true);
+          setAuthenticatedUser(response.data);
         } else {
-          setIsAuthenticated(false);
+          setAuthenticatedUser(null);
           localStorage.removeItem('token');
         }
       } catch (error) {
-        setIsAuthenticated(false);
+        console.log('Erro ao verificar autenticação:', error);
+        setAuthenticatedUser(null);
         localStorage.removeItem('token');
       } finally {
         setIsLoading(false);
@@ -59,16 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   function logout() {
     localStorage.removeItem('token');
-    setIsAuthenticated(false);
+    setAuthenticatedUser(null);
   }
 
-  function markAsAuthenticated() {
-    setIsAuthenticated(true);
+  function markAuthenticatedUser(user: IProfessional) {
+    setAuthenticatedUser(user);
     setIsLoading(false);
   }
 
   return (
-    <AuthContext.Provider value={{ showToast, isAuthenticated, isLoading, logout, markAsAuthenticated }}>
+    <AuthContext.Provider value={{ showToast, authenticatedUser, isLoading, logout, markAuthenticatedUser }}>
       <Toast
         message={toast.message}
         type={toast.type}

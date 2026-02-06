@@ -21,7 +21,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const navigate = useNavigate();
-  const { markAsAuthenticated } = useAuth();
+  const { markAuthenticatedUser } = useAuth();
   const { mutate: login, isPending, isError, error } = useLogin();
 
   const {
@@ -34,9 +34,9 @@ export default function Login() {
 
   const onSubmit = (data: LoginFormData) => {
     login(data, {
-      onSuccess: () => {
-        markAsAuthenticated();
-        navigate('/dashboard');
+      onSuccess: (response) => {
+        markAuthenticatedUser(response.professional);
+        navigate('/menu');
       },
     });
   };
