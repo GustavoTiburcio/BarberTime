@@ -11,6 +11,7 @@ import DashboardHome from '../pages/DashboardHome';
 import Professionals from '../pages/Professionals';
 import Services from '../pages/Services';
 import Schedule from '../pages/Schedule';
+import Login from '../pages/Login';
 
 
 function LayoutFixo() {
@@ -26,6 +27,8 @@ export default function RouterComponent() {
   return (
     <Router>
       <Routes>
+        <Route path="/login" element={<Login />} />
+        
         <Route element={<LayoutFixo />}>
           <Route path='/' element={<Booking />} />
         </Route>
