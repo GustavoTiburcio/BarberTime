@@ -1,6 +1,6 @@
 // Sidebar.tsx
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Scissors, Users, X, Calendar, AreaChart, LogOutIcon, DollarSign } from 'lucide-react';
+import { Scissors, Users, X, Calendar, AreaChart, LogOutIcon, DollarSign, Clock } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -13,6 +13,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
     { name: 'Agenda', icon: <Calendar className='w-4 h-4' />, path: '/menu/schedule' },
     { name: 'Profissionais', icon: <Users className='w-4 h-4' />, path: '/menu/professionals' },
     { name: 'Serviços', icon: <Scissors className='w-4 h-4' />, path: '/menu/services' },
+    { name: 'Horários', icon: <Clock className='w-4 h-4' />, path: '/menu/professionalHours' },
   ];
 
   // Filter menu items by role: managers see all, employees only see schedule

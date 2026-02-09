@@ -15,6 +15,7 @@ import Schedule from '../pages/Schedule';
 import Login from '../pages/Login';
 import { ProtectedRoute } from './ProtectedRoute';
 import Comission from '../pages/Comission';
+import ProfessionalHours from '../pages/ProfessionalHours';
 
 
 function LayoutFixo() {
@@ -49,6 +50,7 @@ export default function RouterComponent() {
           <Route path='professionals' element={<Professionals />} />
           <Route path='services' element={<Services />} />
           <Route path='schedule' element={<Schedule />} />
+          <Route path='professionalHours' element={<ProfessionalHours />} />
         </Route>
       </Routes>
     </Router>

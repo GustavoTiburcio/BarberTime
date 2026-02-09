@@ -45,3 +45,13 @@ export interface BookingFormData {
   serviceId: string;
   professionalId: string;
 }
+
+export interface WorkHour {
+  id?: string;
+  professionalId: string;
+  dayOfWeek: number;
+  dayName: string;
+  startTime: string;
+  endTime: string;
+  createdAt?: string;
+}
