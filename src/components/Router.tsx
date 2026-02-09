@@ -14,6 +14,7 @@ import Services from '../pages/Services';
 import Schedule from '../pages/Schedule';
 import Login from '../pages/Login';
 import { ProtectedRoute } from './ProtectedRoute';
+import Comission from '../pages/Comission';
 
 
 function LayoutFixo() {
@@ -44,6 +45,7 @@ export default function RouterComponent() {
         }>
           <Route index element={<Navigate to='dashboard' replace />} />
           <Route path='dashboard' element={<Dashboard />} />
+          <Route path='comission' element={<Comission />} />
           <Route path='professionals' element={<Professionals />} />
           <Route path='services' element={<Services />} />
           <Route path='schedule' element={<Schedule />} />
