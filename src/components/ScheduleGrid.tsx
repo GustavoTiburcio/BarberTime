@@ -13,7 +13,7 @@ interface ScheduleGridProps {
 
 const OPENING_HOUR = 8;
 const CLOSING_HOUR = 20;
-const SLOT_DURATION = 60; // minutos
+const SLOT_DURATION = 30; // minutos
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   confirmed: {
@@ -141,7 +141,8 @@ export default function ScheduleGrid({ bookings, weekDates, services, profession
     if (e.currentTarget instanceof HTMLElement) {
       e.currentTarget.style.opacity = '1';
     }
-    // Limpa o estado de drag over
+    // Limpa o estado de drag
+    setDraggedBooking(null);
     setDragOverCell(null);
   };
 
