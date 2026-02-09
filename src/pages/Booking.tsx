@@ -31,6 +31,7 @@ const schema = z.object({
 
 export default function Booking() {
   const [showModal, setShowModal] = useState(false);
+  const [isBookingSuccess, setIsBookingSuccess] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(schema),
@@ -55,10 +56,12 @@ export default function Booking() {
   const { data: professionals = [], isLoading: isProfessionalsLoading } = useProfessionals();
   const { confirmBooking, isLoading } = useCreateBooking({
     onSuccess: () => {
-      setShowModal(false);
-      form.reset();
+      setIsBookingSuccess(true);
     },
-    onError: () => setShowModal(false)
+    onError: () => {
+      setShowModal(false);
+      setIsBookingSuccess(false);
+    }
   });
   const { data: availableTimes = [], isLoading: loadingAvailability } =
     useAvailability({
@@ -69,11 +72,22 @@ export default function Booking() {
 
   const handleBookingSubmit = form.handleSubmit(() => {
     setShowModal(true);
+    setIsBookingSuccess(false);
   });
 
   const handleConfirmBooking = form.handleSubmit(async (formData) => {
     confirmBooking(formData);
   });
+
+  const handleCloseModal = () => {
+    if (!isLoading) {
+      setShowModal(false);
+      setIsBookingSuccess(false);
+      if (isBookingSuccess) {
+        form.reset();
+      }
+    }
+  };
 
   const selectedService = services.find((s) => s.id === serviceId);
   const selectedProfessional = professionals.find((p) => p.id === professionalId);
@@ -174,11 +188,7 @@ export default function Booking() {
 
       <BookingModal
         isOpen={showModal}
-        onClose={() => {
-          if (!isLoading) {
-            setShowModal(false)
-          }
-        }}
+        onClose={handleCloseModal}
         onConfirm={handleConfirmBooking}
         formData={form.getValues()}
         serviceName={selectedService?.name || ''}
@@ -186,6 +196,7 @@ export default function Booking() {
         serviceDuration={selectedService?.duration || 0}
         professionalName={selectedProfessional?.name || ''}
         isLoading={isLoading}
+        isSuccess={isBookingSuccess}
       />
       <Footer />
     </div>
