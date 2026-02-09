@@ -1,7 +1,17 @@
-import { X, Calendar, Clock, Scissors, User, Phone, MapPin } from 'lucide-react';
+import { useState } from 'react';
+import {
+  X, Calendar, Clock,
+  Scissors, User, Phone,
+  MapPin, Copy, CheckCircle
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
 import { Button } from './Button';
+import WhatsappIcon from '../assets/whatsapp.svg?react';
+import PixIcon from '../assets/pix.svg?react';
+
 import { BookingFormData } from '../types';
+import { COMPANY_CONFIG } from '../constants';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -13,6 +23,7 @@ interface BookingModalProps {
   servicePrice: number;
   serviceDuration: number;
   professionalName: string;
+  isSuccess?: boolean;
 }
 
 export function BookingModal({
@@ -24,8 +35,15 @@ export function BookingModal({
   serviceName,
   servicePrice,
   serviceDuration,
-  professionalName
+  professionalName,
+  isSuccess = false
 }: BookingModalProps) {
+  const [copied, setCopied] = useState(false);
+
+  // Configurações da empresa
+  const pixKey = COMPANY_CONFIG.pixKey;
+  const companyPhone = COMPANY_CONFIG.whatsappPhone;
+
   if (!isOpen) return null;
 
   const formatDate = (dateStr: string) => {
@@ -39,6 +57,18 @@ export function BookingModal({
     });
   };
 
+  const handleCopyPix = () => {
+    navigator.clipboard.writeText(pixKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleWhatsApp = () => {
+    const message = `Olá! Confirmo meu agendamento:\n\n📅 Data: ${formatDate(formData.date)}\n⏰ Horário: ${formData.time}\n✂️ Serviço: ${serviceName}\n💰 Valor: R$ ${servicePrice}\n👤 Profissional: ${professionalName}\n\n👨 Cliente: ${formData.clientName}\n📞 Telefone: ${formData.clientPhone}`;
+    const whatsappUrl = `https://wa.me/${companyPhone}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -49,7 +79,7 @@ export function BookingModal({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden"
+            className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col overflow-hidden"
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
@@ -57,7 +87,10 @@ export function BookingModal({
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Confirmar Agendamento</h2>
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                {isSuccess && <CheckCircle className="w-6 h-6 text-green-500" />}
+                {isSuccess ? 'Agendamento Confirmado!' : 'Confirmar Agendamento'}
+              </h2>
               <button
                 onClick={onClose}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -114,26 +147,76 @@ export function BookingModal({
                 </p>
               </div>
 
+              {/* PIX Info - Only shown after success */}
+              {isSuccess && (
+                <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
+                  <h3 className="flex items-center font-semibold text-purple-800 mb-3">
+                    <PixIcon className="fill-purple-800 w-6 h-6 mr-1" />
+                    Chave PIX para Pagamento
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={pixKey}
+                        className="flex-1 px-3 py-2 text-sm border border-purple-200 rounded-lg bg-white font-mono"
+                      />
+                      <Button
+                        onClick={handleCopyPix}
+                        color="gray"
+                        className="!px-3"
+                      >
+                        {copied ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-purple-600">
+                      Copie a chave PIX acima para realizar o pagamento
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Location Info */}
               <div className="bg-green-50 rounded-lg p-4 border border-green-100">
                 <h3 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-green-500" />
                   Local
                 </h3>
-                <p className="text-sm font-medium text-gray-900">Lord”3 Barber Shop</p>
-                <p className="text-sm text-gray-600">Av. Aurora Rinck Vignoto n. 399</p>
-                <p className="text-sm text-gray-600">Jardim Aurora, Sarandi - PR</p>
+                <p className="text-sm font-medium text-gray-900">{COMPANY_CONFIG.name}</p>
+                <p className="text-sm text-gray-600">{COMPANY_CONFIG.address.street}</p>
+                <p className="text-sm text-gray-600">{COMPANY_CONFIG.address.neighborhood}, {COMPANY_CONFIG.address.city}</p>
               </div>
             </div>
 
             {/* Sticky Footer */}
             <div className="mt-auto flex gap-3 px-6 py-4 border-t border-gray-200 bg-white sticky bottom-0">
-              <Button color="gray" onClick={onClose} className="w-1/2">
-                Cancelar
-              </Button>
-              <Button loading={isLoading} onClick={onConfirm} className="w-1/2">
-                Confirmar
-              </Button>
+              {isSuccess ? (
+                <Button
+                  onClick={handleWhatsApp}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
+                >
+                  <WhatsappIcon className="w-6 h-6 mr-2" />
+                  Enviar confirmação via WhatsApp
+                </Button>
+              ) : (
+                <>
+                  <Button color="gray" onClick={onClose} className="w-1/2">
+                    Cancelar
+                  </Button>
+                  <Button loading={isLoading} onClick={onConfirm} className="w-1/2">
+                    Confirmar
+                  </Button>
+                </>
+              )}
             </div>
           </motion.div>
         </motion.div>
