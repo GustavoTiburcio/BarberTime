@@ -3,6 +3,7 @@ import WhatsappIcon from '../assets/whatsapp.svg?react';
 
 import { Booking, Professional, Service } from '../types';
 import { useCancelBooking } from '../hooks/useCancelBooking';
+import { useConfirmBooking } from '../hooks/useConfirmBooking';
 
 interface BookingDetailModalProps {
   booking: Booking | null;
@@ -42,6 +43,25 @@ export default function BookingDetailModal({ booking, services, professionals, i
         className={`flex-1 px-4 py-2 rounded-lg font-medium text-white transition-colors ${isLoading ? 'bg-red-300' : 'bg-red-500 hover:bg-red-600'} ${booking?.status === 'cancelled' ? 'cursor-not-allowed opacity-50' : ''}`}
       >
         {isLoading ? 'Cancelando...' : 'Cancelar'}
+      </button>
+    );
+  }
+
+  function ConfirmButton({ bookingId, onClose }: { bookingId: string; onClose: () => void }) {
+    const { confirmBooking, isLoading } = useConfirmBooking({ onSuccess: onClose });
+
+    const bookingInfo = {
+      id: bookingId,
+      status: 'confirmed' as const
+    }
+
+    return (
+      <button
+        onClick={() => confirmBooking(bookingInfo)}
+        disabled={isLoading || booking?.status === 'confirmed'}
+        className={`flex-1 px-4 py-2 rounded-lg font-medium text-white transition-colors ${isLoading ? 'bg-green-300' : 'bg-green-500 hover:bg-green-600'} ${booking?.status === 'cancelled' ? 'cursor-not-allowed opacity-50' : ''}`}
+      >
+        {isLoading ? 'Confirmando...' : 'Confirmar'}
       </button>
     );
   }
@@ -152,6 +172,9 @@ export default function BookingDetailModal({ booking, services, professionals, i
           </button>
           {booking && (
             <CancelButton bookingId={booking.id} onClose={onClose} />
+          )}
+          {booking && (
+            <ConfirmButton bookingId={booking.id} onClose={onClose} />
           )}
           <button
             onClick={() => {
