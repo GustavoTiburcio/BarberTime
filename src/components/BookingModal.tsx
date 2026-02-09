@@ -64,7 +64,7 @@ export function BookingModal({
   };
 
   const handleWhatsApp = () => {
-    const message = `Olá! Confirmação do meu agendamento:\n\n📅 Data: ${formatDate(formData.date)}\n⏰ Horário: ${formData.time}\n✂️ Serviço: ${serviceName}\n💰 Valor: R$ ${servicePrice}\n👤 Profissional: ${professionalName}\n\n👨 Cliente: ${formData.clientName}\n📞 Telefone: ${formData.clientPhone}`;
+    const message = `Olá! Confirmação do meu agendamento:\n\nData: ${formatDate(formData.date)}\nHorário: ${formData.time}\nServiço: ${serviceName}\nValor: R$ ${servicePrice}\nProfissional: ${professionalName}\n\nCliente: ${formData.clientName}\nTelefone: ${formData.clientPhone}`;
     const whatsappUrl = `https://wa.me/${companyPhone}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
