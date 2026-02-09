@@ -49,6 +49,7 @@ export function Modal<T>({
     description: 'Descrição',
     duration: 'Duração',
     price: 'Preço',
+    comission: 'Comissão'
   };
 
   return (

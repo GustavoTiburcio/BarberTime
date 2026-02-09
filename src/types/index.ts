@@ -15,6 +15,7 @@ export interface Professional {
   username: string;
   password?: string;
   role: 'manager' | 'employee';
+  comission: number;
 }
 
 export interface TimeSlot {

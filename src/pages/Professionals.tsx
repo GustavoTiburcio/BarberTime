@@ -18,6 +18,7 @@ const professionalSchema = z.object({
   specialties: z.string().min(1).transform(s => s.split(',').map(x => x.trim())),
   username: z.string().min(1, 'Username é obrigatório'),
   password: z.string().optional(),
+  comission: z.coerce.number().min(0).max(100)
 });
 
 export default function Professionals() {
