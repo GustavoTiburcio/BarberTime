@@ -12,6 +12,10 @@ export interface Professional {
   avatar: string;
   specialties: string[];
   rating: number;
+  username: string;
+  password?: string;
+  role: 'manager' | 'employee';
+  comission: number;
 }
 
 export interface TimeSlot {
@@ -40,4 +44,14 @@ export interface BookingFormData {
   time: string;
   serviceId: string;
   professionalId: string;
+}
+
+export interface WorkHour {
+  id?: string;
+  professionalId: string;
+  dayOfWeek: number;
+  dayName: string;
+  startTime: string;
+  endTime: string;
+  createdAt?: string;
 }

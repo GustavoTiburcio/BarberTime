@@ -37,7 +37,7 @@ export function TimeSlots({
           Horários Disponíveis
         </h3>
         <p className="text-gray-500 text-center py-8">
-          Nenhum horário disponível para essa seleção
+          Nenhum horário disponível
         </p>
       </div>
     );

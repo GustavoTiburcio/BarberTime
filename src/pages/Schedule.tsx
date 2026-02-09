@@ -2,14 +2,18 @@ import { useState, useEffect } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
+  Plus,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import ScheduleGrid from '../components/ScheduleGrid';
+
 import { useServices } from '../hooks/useServices';
 import { useBookings } from '../hooks/useBookings';
 import { useProfessionals } from '../hooks/useProfessionals';
 
 export default function Schedule() {
+  const navigate = useNavigate();
   const [selectedProfessional, setSelectedProfessional] = useState<string>('');
   const [currentDate, setCurrentDate] = useState(new Date());
   const { data: professionals = [], isLoading: isProfessionalsLoading } = useProfessionals();
@@ -48,7 +52,7 @@ export default function Schedule() {
     if (!selectedProfessional && professionals.length > 0) {
       setSelectedProfessional(professionals[0].id || '');
     }
-  }, [professionals]);
+  }, [professionals, selectedProfessional]);
 
   const startDate = preloadRange.start.toISOString().split('T')[0];
   const endDate = preloadRange.end.toISOString().split('T')[0];
@@ -57,10 +61,10 @@ export default function Schedule() {
   const { data: bookings = [], isLoading } = useBookings(
     selectedProfessional
       ? {
-          startDate,
-          endDate,
-          professionalId: selectedProfessional,
-        }
+        startDate,
+        endDate,
+        professionalId: selectedProfessional,
+      }
       : { startDate: '', endDate: '' } // dummy params when no professional selected
   );
 
@@ -104,8 +108,19 @@ export default function Schedule() {
       <div className='max-w-7xl mx-auto'>
         {/* Header */}
         <div className='mb-8'>
-          <h1 className='text-3xl font-bold text-gray-900 mb-2'>Agenda</h1>
-          <p className='text-gray-600'>Visualize os agendamentos dos profissionais</p>
+          <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
+            <div>
+              <h1 className='text-3xl font-bold text-gray-900 mb-2'>Agenda</h1>
+              <p className='text-gray-600'>Visualize os agendamentos dos profissionais</p>
+            </div>
+            <button
+              onClick={() => navigate('/')}
+              className='flex items-center justify-center gap-2 duration-200 hover:shadow-lg active:scale-95 bg-amber-500 hover:bg-amber-600 transition-colors text-white px-6 py-3 rounded-xl font-medium whitespace-nowrap w-full sm:w-auto'
+            >
+              <Plus size={20} />
+              <span>Novo Agendamento</span>
+            </button>
+          </div>
           {isLoading && (
             <div className='mt-4 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm'>
               Carregando agendamentos...

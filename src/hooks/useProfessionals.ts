@@ -7,6 +7,7 @@ export interface Professional {
   avatar: string;
   specialties: string[];
   rating: number;
+  comission: number;
 }
 
 export function useProfessionals() {

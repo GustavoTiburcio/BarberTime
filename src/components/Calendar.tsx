@@ -43,7 +43,12 @@ export function Calendar({ selectedDate, onDateSelect }: CalendarProps) {
 
   const isDateDisabled = (day: number): boolean => {
     const date = new Date(currentYear, currentMonth, day);
-    return date < today;
+    const currentDate = new Date();
+
+    date.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+    
+    return date.getDate() < currentDate.getDate();
   };
 
   const isDateSelected = (day: number): boolean => {

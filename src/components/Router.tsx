@@ -3,14 +3,19 @@ import {
   Route,
   Outlet,
   Routes,
+  Navigate,
 } from 'react-router-dom';
 import Booking from '../pages/Booking';
 import Header from './Header';
+import Menu from '../pages/Menu';
 import Dashboard from '../pages/Dashboard';
-import DashboardHome from '../pages/DashboardHome';
 import Professionals from '../pages/Professionals';
 import Services from '../pages/Services';
 import Schedule from '../pages/Schedule';
+import Login from '../pages/Login';
+import { ProtectedRoute } from './ProtectedRoute';
+import Comission from '../pages/Comission';
+import ProfessionalHours from '../pages/ProfessionalHours';
 
 
 function LayoutFixo() {
@@ -26,15 +31,26 @@ export default function RouterComponent() {
   return (
     <Router>
       <Routes>
+        {/* Rotas públicas */}
+        <Route path='/login' element={<Login />} />
+
         <Route element={<LayoutFixo />}>
           <Route path='/' element={<Booking />} />
         </Route>
 
-        <Route path='/dashboard' element={<Dashboard />}>
-          <Route index element={<DashboardHome />} />
+        {/* Rotas protegidas */}
+        <Route path='/menu' element={
+          <ProtectedRoute>
+            <Menu />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Navigate to='dashboard' replace />} />
+          <Route path='dashboard' element={<Dashboard />} />
+          <Route path='comission' element={<Comission />} />
           <Route path='professionals' element={<Professionals />} />
           <Route path='services' element={<Services />} />
           <Route path='schedule' element={<Schedule />} />
+          <Route path='professionalHours' element={<ProfessionalHours />} />
         </Route>
       </Routes>
     </Router>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Booking, Professional, Service } from '../types';
 import BookingDetailModal from './BookingDetailModal';
+import { useUpdateBooking } from '../hooks/useUpdateBooking';
 
 interface ScheduleGridProps {
   bookings: Booking[];
@@ -40,6 +41,15 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
 export default function ScheduleGrid({ bookings, weekDates, services, professionals, isLoading }: ScheduleGridProps) {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [draggedBooking, setDraggedBooking] = useState<Booking | null>(null);
+  const [dragOverCell, setDragOverCell] = useState<{ date: Date; time: string } | null>(null);
+
+  const { confirmBooking, isLoading: isUpdating } = useUpdateBooking({
+    onSuccess: () => {
+      setDraggedBooking(null);
+      setDragOverCell(null);
+    },
+  });
 
 
   // Gera slots de 30 minutos para cada hora
@@ -80,13 +90,126 @@ export default function ScheduleGrid({ bookings, weekDates, services, profession
 
   const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 
+  // Função auxiliar para verificar conflitos
+  const checkConflict = (targetDate: Date, targetTime: string, bookingToMove: Booking): boolean => {
+    const targetDateStr = targetDate.toISOString().split('T')[0];
+    const targetDateBookings = bookings.filter((booking) => {
+      const bookingDateStr = typeof booking.date === 'string'
+        ? booking.date.split('T')[0]
+        : booking.date;
+      return bookingDateStr === targetDateStr && booking.id !== bookingToMove.id;
+    });
+
+    return targetDateBookings.some((booking) => {
+      const bookingTime = typeof booking.time === 'string'
+        ? booking.time.substring(0, 5)
+        : booking.time;
+
+      const draggedDuration = bookingToMove.service?.duration ||
+        services.find((s) => s.id === bookingToMove.serviceId)?.duration || 30;
+
+      const existingDuration = booking.service?.duration ||
+        services.find((s) => s.id === booking.serviceId)?.duration || 30;
+
+      const [targetHour, targetMinute] = targetTime.split(':').map(Number);
+      const targetMinutes = targetHour * 60 + targetMinute;
+      const targetEndMinutes = targetMinutes + draggedDuration;
+
+      const [bookingHour, bookingMinute] = bookingTime.split(':').map(Number);
+      const bookingMinutes = bookingHour * 60 + bookingMinute;
+      const bookingEndMinutes = bookingMinutes + existingDuration;
+
+      return (
+        (targetMinutes >= bookingMinutes && targetMinutes < bookingEndMinutes) ||
+        (targetEndMinutes > bookingMinutes && targetEndMinutes <= bookingEndMinutes) ||
+        (targetMinutes <= bookingMinutes && targetEndMinutes >= bookingEndMinutes)
+      );
+    });
+  };
+
+  // Handlers de drag-and-drop
+  const handleDragStart = (e: React.DragEvent, booking: Booking) => {
+    setDraggedBooking(booking);
+    e.dataTransfer.effectAllowed = 'move';
+    // Adiciona um efeito visual
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '0.5';
+    }
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '1';
+    }
+    // Limpa o estado de drag
+    setDraggedBooking(null);
+    setDragOverCell(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, date: Date, time: string) => {
+    e.preventDefault();
+
+    if (!draggedBooking) return;
+
+    const hasConflict = checkConflict(date, time, draggedBooking);
+    e.dataTransfer.dropEffect = hasConflict ? 'none' : 'move';
+    setDragOverCell({ date, time });
+  };
+
+  const handleDragLeave = () => {
+    setDragOverCell(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetDate: Date, targetTime: string) => {
+    e.preventDefault();
+
+    if (!draggedBooking) return;
+
+    // Formata a data para o formato esperado (YYYY-MM-DD)
+    const newDate = targetDate.toISOString().split('T')[0];
+
+    // Verifica se houve mudança
+    const currentDate = typeof draggedBooking.date === 'string'
+      ? draggedBooking.date.split('T')[0]
+      : draggedBooking.date;
+    const currentTime = typeof draggedBooking.time === 'string'
+      ? draggedBooking.time.substring(0, 5)
+      : draggedBooking.time;
+
+    if (currentDate === newDate && currentTime === targetTime) {
+      // Sem mudança, apenas limpa o estado
+      setDraggedBooking(null);
+      setDragOverCell(null);
+      return;
+    }
+
+    // Verifica conflitos
+    if (checkConflict(targetDate, targetTime, draggedBooking)) {
+      // Limpa o estado e não faz a atualização
+      setDraggedBooking(null);
+      setDragOverCell(null);
+      return;
+    }
+
+    // Atualiza o booking com nova data e hora
+    const updatedBooking: Booking = {
+      ...draggedBooking,
+      date: newDate,
+      time: targetTime,
+    };
+
+    confirmBooking(updatedBooking);
+  };
+
   return (
     <div className='bg-white rounded-lg shadow-md overflow-hidden relative'>
-      {isLoading && (
+      {(isLoading || isUpdating) && (
         <div className='absolute inset-0 bg-white/70 z-30 flex items-center justify-center'>
           <div className='flex flex-col items-center gap-3'>
             <div className='w-8 h-8 border-4 border-t-blue-600 rounded-full animate-spin' />
-            <div className='text-sm text-gray-700'>Carregando agendamentos...</div>
+            <div className='text-sm text-gray-700'>
+              {isUpdating ? 'Atualizando agendamento...' : 'Carregando agendamentos...'}
+            </div>
           </div>
         </div>
       )}
@@ -193,7 +316,10 @@ export default function ScheduleGrid({ bookings, weekDates, services, profession
                     return (
                       <div
                         key={cellKey}
-                        className={`p-0.5 sm:p-1 border-2 z-10 rounded-lg flex flex-col justify-center items-center cursor-pointer hover:shadow-lg transition-shadow ${statusColor.bg} ${statusColor.border} ${statusColor.text} overflow-hidden`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, booking)}
+                        onDragEnd={handleDragEnd}
+                        className={`p-0.5 sm:p-1 border-2 z-10 rounded-lg flex flex-col justify-center items-center cursor-move hover:shadow-lg transition-shadow ${statusColor.bg} ${statusColor.border} ${statusColor.text} overflow-hidden`}
                         style={{
                           gridColumn: dayIndex + 2,
                           gridRow: `${timeIndex + 1} / span ${slotsSpan}`,
@@ -201,8 +327,11 @@ export default function ScheduleGrid({ bookings, weekDates, services, profession
                           alignSelf: 'start',
                         }}
                         onClick={() => {
-                          setSelectedBooking(booking);
-                          setIsModalOpen(true);
+                          // Previne abrir modal se está arrastando
+                          if (!draggedBooking) {
+                            setSelectedBooking(booking);
+                            setIsModalOpen(true);
+                          }
                         }}
                         title={`${booking.clientName} - ${booking.clientPhone}`}
                       >
@@ -227,10 +356,24 @@ export default function ScheduleGrid({ bookings, weekDates, services, profession
                   }
 
                   // Renderiza célula vazia
+                  const isDropTarget = dragOverCell?.date === date && dragOverCell?.time === time;
+                  const hasConflict = draggedBooking && isDropTarget
+                    ? checkConflict(date, time, draggedBooking)
+                    : false;
+
                   return (
                     <div
                       key={cellKey}
-                      className='border-r border-b border-gray-100 hover:bg-gray-50 transition-colors'
+                      onDragOver={(e) => handleDragOver(e, date, time)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, date, time)}
+                      className={`border-r border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                        isDropTarget
+                          ? hasConflict
+                            ? 'bg-red-100 ring-2 ring-red-400'
+                            : 'bg-green-100 ring-2 ring-green-400'
+                          : ''
+                      }`}
                       style={{
                         gridColumn: dayIndex + 2,
                         gridRow: timeIndex + 1,

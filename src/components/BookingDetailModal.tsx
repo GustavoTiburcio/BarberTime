@@ -3,6 +3,9 @@ import WhatsappIcon from '../assets/whatsapp.svg?react';
 
 import { Booking, Professional, Service } from '../types';
 import { useCancelBooking } from '../hooks/useCancelBooking';
+import { useConfirmBooking } from '../hooks/useConfirmBooking';
+import { useUpdateBooking } from '../hooks/useUpdateBooking';
+import { useState } from 'react';
 
 interface BookingDetailModalProps {
   booking: Booking | null;
@@ -13,10 +16,26 @@ interface BookingDetailModalProps {
 }
 
 export default function BookingDetailModal({ booking, services, professionals, isOpen, onClose }: BookingDetailModalProps) {
+  const [isEditingProfessional, setIsEditingProfessional] = useState(false);
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState(booking?.professionalId || '');
+
+  const { confirmBooking: updateBooking, isLoading: isUpdatingProfessional } = useUpdateBooking({
+    onSuccess: () => {
+      setIsEditingProfessional(false);
+      onClose();
+    },
+  });
+
   if (!isOpen || !booking) return null;
 
   const service = services.find((s) => s.id === booking.serviceId);
   const professional = professionals.find((p) => p.id === booking.professionalId);
+
+  const handleProfessionalChange = (newProfessionalId: string) => {
+    setSelectedProfessionalId(newProfessionalId);
+    const updatedBooking = { ...booking, professionalId: newProfessionalId };
+    updateBooking(updatedBooking);
+  };
 
   const statusLabels: Record<string, string> = {
     confirmed: 'Confirmado',
@@ -46,6 +65,25 @@ export default function BookingDetailModal({ booking, services, professionals, i
     );
   }
 
+  function ConfirmButton({ bookingId, onClose }: { bookingId: string; onClose: () => void }) {
+    const { confirmBooking, isLoading } = useConfirmBooking({ onSuccess: onClose });
+
+    const bookingInfo = {
+      id: bookingId,
+      status: 'confirmed' as const
+    }
+
+    return (
+      <button
+        onClick={() => confirmBooking(bookingInfo)}
+        disabled={isLoading || booking?.status === 'confirmed'}
+        className={`flex-1 px-4 py-2 rounded-lg font-medium text-white transition-colors ${isLoading ? 'bg-green-300' : 'bg-green-500 hover:bg-green-600'} ${booking?.status === 'cancelled' ? 'cursor-not-allowed opacity-50' : ''}`}
+      >
+        {isLoading ? 'Confirmando...' : 'Confirmar'}
+      </button>
+    );
+  }
+
   return (
     <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4'>
       <div className='bg-white rounded-xl shadow-lg w-full max-w-sm sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto'>
@@ -71,17 +109,48 @@ export default function BookingDetailModal({ booking, services, professionals, i
 
           {/* Profissional */}
           <div>
-            <h3 className='text-sm font-medium text-gray-500 uppercase mb-2'>Profissional</h3>
-            <div className='flex items-center gap-3'>
-              {professional?.avatar && (
-                <img
-                  src={professional.avatar}
-                  alt={professional.name}
-                  className='w-10 h-10 rounded-full object-cover'
-                />
+            <div className='flex items-center justify-between mb-2'>
+              <h3 className='text-sm font-medium text-gray-500 uppercase'>Profissional</h3>
+              {booking.status !== 'cancelled' && (
+                <button
+                  onClick={() => setIsEditingProfessional(!isEditingProfessional)}
+                  className='text-xs text-blue-600 hover:text-blue-800 font-medium'
+                  disabled={isUpdatingProfessional}
+                >
+                  {isEditingProfessional ? 'Cancelar' : 'Alterar'}
+                </button>
               )}
-              <p className='text-lg font-semibold text-gray-900'>{professional?.name || 'N/A'}</p>
             </div>
+
+            {isEditingProfessional ? (
+              <select
+                value={selectedProfessionalId}
+                onChange={(e) => handleProfessionalChange(e.target.value)}
+                disabled={isUpdatingProfessional}
+                className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50'
+              >
+                {professionals.map((prof) => (
+                  <option key={prof.id} value={prof.id}>
+                    {prof.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className='flex items-center gap-3'>
+                {professional?.avatar && (
+                  <img
+                    src={professional.avatar}
+                    alt={professional.name}
+                    className='w-10 h-10 rounded-full object-cover'
+                  />
+                )}
+                <p className='text-lg font-semibold text-gray-900'>{professional?.name || 'N/A'}</p>
+              </div>
+            )}
+
+            {isUpdatingProfessional && (
+              <p className='text-xs text-blue-600 mt-2'>Salvando alteração...</p>
+            )}
           </div>
 
           {/* Serviço */}
@@ -152,6 +221,9 @@ export default function BookingDetailModal({ booking, services, professionals, i
           </button>
           {booking && (
             <CancelButton bookingId={booking.id} onClose={onClose} />
+          )}
+          {booking && (
+            <ConfirmButton bookingId={booking.id} onClose={onClose} />
           )}
           <button
             onClick={() => {

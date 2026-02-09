@@ -1,14 +1,34 @@
 // Sidebar.tsx
-import { NavLink } from "react-router-dom";
-import { Scissors, Users, X, Calendar } from "lucide-react";
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Scissors, Users, X, Calendar, AreaChart, LogOutIcon, DollarSign, Clock } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const navigate = useNavigate();
+  const { authenticatedUser, logout } = useAuth();
+
+  const menuItems = [
+    { name: 'Dashboard', icon: <AreaChart className='w-4 h-4' />, path: '/menu/dashboard' },
+    { name: 'Comissão', icon: <DollarSign className='w-4 h-4' />, path: '/menu/comission' },
+    { name: 'Agenda', icon: <Calendar className='w-4 h-4' />, path: '/menu/schedule' },
+    { name: 'Profissionais', icon: <Users className='w-4 h-4' />, path: '/menu/professionals' },
+    { name: 'Serviços', icon: <Scissors className='w-4 h-4' />, path: '/menu/services' },
+    { name: 'Horários', icon: <Clock className='w-4 h-4' />, path: '/menu/professionalHours' },
+  ];
+
+  // Filter menu items by role: managers see all, employees only see schedule
+  const role = authenticatedUser?.role;
+  const visibleMenuItems = menuItems.filter((item) => {
+    if (role === 'employee') return item.path === '/menu/schedule';
+    return true;
+  });
+
   return (
     <>
       {/* Overlay no mobile */}
       {open && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className='fixed inset-0 bg-black/50 z-40 lg:hidden'
           onClick={onClose}
         />
       )}
@@ -21,70 +41,52 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           transform transition-transform duration-300
           overflow-y-auto
 
-          ${open ? "translate-x-0" : "-translate-x-full"}
+          ${open ? 'translate-x-0' : '-translate-x-full'}
 
           lg:translate-x-0
         `}
       >
-        <div className="flex justify-between items-center mb-6">
-          <NavLink
-            to="/dashboard"
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition 
-                ${"hover:bg-gray-100 text-gray-700"}
-              `}
-            onClick={onClose}
-          >
-          <h2 className="text-xl font-bold text-gray-900">Dashboard</h2>
-          </NavLink>
-          <button className="lg:hidden text-gray-600" onClick={onClose}>
+        <div className='flex items-center gap-3 mb-6 justify-center'>
+          <img
+            src={authenticatedUser?.avatar}
+            alt={authenticatedUser?.name}
+            className='w-12 h-12 rounded-full object-cover'
+          />
+          <h1 className='text-2xl font-bold text-gray-600'>Olá, {authenticatedUser?.name}</h1>
+        </div>
+        <div className='flex justify-between items-center mb-6'>
+
+          <button className='lg:hidden text-gray-600' onClick={onClose}>
             <X />
           </button>
         </div>
-        <nav className="space-y-2">
+        {visibleMenuItems.map((item) => (
           <NavLink
-            to="/dashboard/schedule"
+            key={item.name}
+            to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                isActive
-                  ? "bg-amber-100 text-amber-700 font-medium"
-                  : "hover:bg-gray-100 text-gray-700"
+              `flex items-center gap-2 px-4 py-2 rounded-lg transition ${isActive
+                ? 'bg-amber-100 text-amber-700 font-medium'
+                : 'hover:bg-gray-100 text-gray-700'
               }`
             }
             onClick={onClose}
           >
-            <Calendar className="w-4 h-4" />
-            Agenda
+            {item.icon}
+            {item.name}
           </NavLink>
-
-          <NavLink
-            to="/dashboard/professionals"
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                isActive
-                  ? "bg-amber-100 text-amber-700 font-medium"
-                  : "hover:bg-gray-100 text-gray-700"
-              }`
-            }
-            onClick={onClose}
+          ))}
+        <nav className='mt-6 pt-6 border-t border-gray-200'>
+          <div
+            className='flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer'
+            onClick={() => {
+              logout();
+              navigate('/login');
+            }}
           >
-            <Users className="w-4 h-4" />
-            Profissionais
-          </NavLink>
-
-          <NavLink
-            to="/dashboard/services"
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                isActive
-                  ? "bg-amber-100 text-amber-700 font-medium"
-                  : "hover:bg-gray-100 text-gray-700"
-              }`
-            }
-            onClick={onClose}
-          >
-            <Scissors className="w-4 h-4" />
-            Serviços
-          </NavLink>
+            <LogOutIcon className='w-4 h-4' />
+            Sair
+          </div>
         </nav>
       </aside>
     </>
