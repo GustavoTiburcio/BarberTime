@@ -5,7 +5,7 @@ export const COMPANY_CONFIG = {
 
   // Telefone da empresa para WhatsApp (com DDI e DDD, sem espaços ou caracteres especiais)
   // Formato: 55 (Brasil) + DDD + Número
-  whatsappPhone: "5544998765432", // Exemplo: 5544998765432
+  whatsappPhone: "554491763121", // Exemplo: 5544998765432
 
   // Nome da empresa
   name: "Lord'3 Barber Shop",
